@@ -1,0 +1,24 @@
+{
+    "name": "smartDb",
+    "version": "0.0.1",
+    "description": "CouchDB library with advanced entity and caching support",
+    "url": "https://github.com/CodeKick/smartDb",
+    "keywords": ["couchdb", "couch", "database"],
+    "author": "Calle Arnesten <calle.arnesten@codekick.com>",
+    "main": "./lib/smartcouch",
+    "dependencies": {
+        "lru-cache": "*",
+        "nano": "*",
+        "request": "*",
+        "underscore": "*"
+    },
+    "devDependencies": {
+        "buster": "*",
+        "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
+        "nock": "*",
+        "sinon": "*"
+    },
+    "engines": {
+        "node": ">=0.8.0"
+    }
+}
