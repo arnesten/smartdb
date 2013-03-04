@@ -153,6 +153,63 @@ module.exports = testCase('simple-crud', {
             assert.equals(shark._rev, 'F1R2');
             done();
         });
+    },
+
+    'merging entity': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                _rev: 'F1R1',
+                name: 'Shark',
+                type: 'fish'
+            })
+            .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish', motto: 'I am bad' }).reply(200, {
+                rev: 'F1R2'
+            });
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        var that = this;
+        smartDb.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' }, function (err, res) {
+            refute(err);
+            assert(that.nock.isDone());
+            assert.equals(res, { rev: 'F1R2' });
+            done();
+        });
+    },
+
+    'removing entity': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                _rev: 'F1R1'
+            })
+            .delete('/main/F1?rev=F1R1').reply(200, {});
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        var that = this;
+        smartDb.remove('fish', 'F1', function (err) {
+            refute(err);
+            assert(that.nock.isDone());
+            done();
+        })
     }
 });
 
