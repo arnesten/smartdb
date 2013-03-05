@@ -84,11 +84,57 @@ module.exports = testCase('views', {
             done();
         });
     },
-    '//viewValue': function (done) {
+    'viewValue': function (done) {
+        this.nock
+            .get('/animals/_design/fish/_view/countBones').reply(200, {
+                rows: [
+                    { value: 1 },
+                    { value: 2 }
+                ]
+            });
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
 
+        smartDb.viewValue('fish', 'countBones', { }, function (err, values) {
+            refute(err);
+            assert.equals(values, [1, 2]);
+            done();
+        });
     },
-    '//viewRaw': function (done) {
+    'viewRaw': function (done) {
+        this.nock
+            .get('/animals/_design/fish/_view/countBones').reply(200, {
+                rows: [
+                    { value: 1, key: 'Shark' },
+                    { value: 2, key: 'Bass' }
+                ]
+            });
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
 
+        smartDb.viewRaw('fish', 'countBones', { }, function (err, values) {
+            refute(err);
+            assert.equals(values, [
+                { value: 1, key: 'Shark' },
+                { value: 2, key: 'Bass' }]);
+            done();
+        });
     }
 });
 
