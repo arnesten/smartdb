@@ -41,7 +41,7 @@ module.exports = testCase('validation', {
             done();
         });
     },
-    'save: with valid entity': function () {
+    'save: with valid entity': function (done) {
         this.nock
             .post('/main', { name: 'Shark', type: 'fish' }).reply(200, {
                 id: 'C1',
@@ -64,8 +64,8 @@ module.exports = testCase('validation', {
         var fish = new Fish({ name: 'Shark' });
 
         smartDb.save(fish, function (err) {
-            assert.equals(err, new Error('Invalid'));
-            refute(fish._id);
+            refute(err);
+            assert(fish._id);
             done();
         });
     }

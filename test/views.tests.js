@@ -84,6 +84,27 @@ module.exports = testCase('views', {
             done();
         });
     },
+    'view: requesting view that does NOT exist': function (done) {
+        this.nock
+            .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(404, {
+                error: 'not_found'
+            });
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        smartDb.view('fish', 'getSharks', { }, function (err) {
+            assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
+            done();
+        });
+    },
     'viewValue': function (done) {
         this.nock
             .get('/animals/_design/fish/_view/countBones').reply(200, {
@@ -132,7 +153,8 @@ module.exports = testCase('views', {
             refute(err);
             assert.equals(values, [
                 { value: 1, key: 'Shark' },
-                { value: 2, key: 'Bass' }]);
+                { value: 2, key: 'Bass' }
+            ]);
             done();
         });
     }
