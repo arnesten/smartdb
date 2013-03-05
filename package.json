@@ -2,10 +2,10 @@
     "name": "smartDb",
     "version": "0.0.1",
     "description": "CouchDB library with advanced entity and caching support",
-    "url": "https://github.com/CodeKick/smartDb",
+    "url": "https://github.com/arnesten/smartDb",
     "keywords": ["couchdb", "couch", "database"],
     "author": "Calle Arnesten <calle.arnesten@codekick.com>",
-    "main": "./lib/smartcouch",
+    "main": "./lib/smartDb",
     "dependencies": {
         "lru-cache": "*",
         "nano": "*",
