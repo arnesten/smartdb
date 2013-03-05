@@ -13,7 +13,7 @@ module.exports = testCase('simple-crud', {
     tearDown: function () {
         nock.cleanAll();
     },
-    'getting an entity': function (done) {
+    'get: entity that exists': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
                 _id: 'F1',
@@ -37,6 +37,85 @@ module.exports = testCase('simple-crud', {
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
             assert.calledWith(entityCreatorStub, 'fish');
+            done();
+        });
+    },
+
+    'get: entity that does NOT exist should give error': function (done) {
+        this.nock
+            .get('/main/F1').reply(404, {
+                'error': 'not_found',
+                'reason': 'missing'
+            });
+        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            getEntityCreator: entityCreatorStub
+        });
+
+        smartDb.get('fish', 'F1', function (err) {
+            assert(err);
+            done();
+        });
+    },
+
+    'getOrNull: entity that exists': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                _rev: '1-2'
+            });
+        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            getEntityCreator: entityCreatorStub
+        });
+
+        smartDb.getOrNull('fish', 'F1', function (err, fish) {
+            refute(err);
+            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
+            assert.equals(fish.constructor, Fish);
+            assert.calledWith(entityCreatorStub, 'fish');
+            done();
+        });
+    },
+
+    'getOrNull: entity that does NOT exists should give null': function (done) {
+        this.nock
+            .get('/main/F1').reply(404, {
+                'error': 'not_found',
+                'reason': 'missing'
+            });
+        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            getEntityCreator: entityCreatorStub
+        });
+
+        smartDb.getOrNull('fish', 'F1', function (err, fish) {
+            refute(err);
+            assert.isNull(fish);
             done();
         });
     },
