@@ -36,7 +36,7 @@ module.exports = testCase('views', {
     },
     'list: with keys array': function (done) {
         this.nock
-            .get('/animals/_design/fish/_list/myList/myView?keys=%5B1%2C2%5D').reply(200, '<b>Shark</b>');
+            .get('/animals/_design/fish/_list/myList/myView?keys=%5B%221%22%2C2%5D').reply(200, '<b>Shark</b>');
         var smartDb = createDb({
             databases: [
                 {
@@ -48,7 +48,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.list('fish', 'myList', 'myView', { keys: [1,2] }, function (err, result) {
+        smartDb.list('fish', 'myList', 'myView', { keys: ["1",2] }, function (err, result) {
             refute(err);
 
             assert.equals(result, '<b>Shark</b>');
