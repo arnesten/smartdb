@@ -2,7 +2,7 @@ smartDb
 =======
 
 todo:
-* save/update/merge validation
+* argument validation on all public methods
 
 ideas:
 * lockGet() lock access to an entity
