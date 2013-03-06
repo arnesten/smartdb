@@ -33,6 +33,27 @@ module.exports = testCase('views', {
             assert.equals(result, '<b>Shark</b>');
             done();
         });
+    },
+    'list: with keys array': function (done) {
+        this.nock
+            .get('/animals/_design/fish/_list/myList/myView?keys=%5B1%2C2%5D').reply(200, '<b>Shark</b>');
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        smartDb.list('fish', 'myList', 'myView', { keys: [1,2] }, function (err, result) {
+            refute(err);
+
+            assert.equals(result, '<b>Shark</b>');
+            done();
+        });
     }
 });
 
