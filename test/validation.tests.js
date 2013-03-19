@@ -68,6 +68,32 @@ module.exports = testCase('validation', {
             assert(fish._id);
             done();
         });
+    },
+    'merge: creating an invalid entity should throw exception': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                type: 'fish'
+            });
+        var smartDb = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            validate: function (entity, callback) {
+                assert.equals(entity, { _id: 'F1', type: 'fish', change: true });
+                callback(new Error('ValidationError'));
+            }
+        });
+
+        smartDb.merge('fish', 'F1', { change: true }, function (err) {
+            assert.equals(err, new Error('ValidationError'));
+            done();
+        });
     }
 });
 
