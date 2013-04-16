@@ -10,13 +10,13 @@
         "lru-cache": "*",
         "nano": "*",
         "request": "*",
+        "sinon": "*",
         "underscore": "*"
     },
     "devDependencies": {
         "buster": "*",
         "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
-        "nock": "*",
-        "sinon": "*"
+        "nock": "*"
     },
     "engines": {
         "node": ">=0.8.0"
