@@ -26,7 +26,7 @@ module.exports = testCase('cache-provider', {
 				}
 			],
 			cacheProvider: {
-				getCache: function (entityType, settings) {
+				create: function (entityType, settings) {
 					assert.equals(entityType, 'fish');
 					assert.equals(settings, { cacheMaxSize: 1 });
 					return {
@@ -44,6 +44,37 @@ module.exports = testCase('cache-provider', {
 			assert.equals(doc, { name: 'Shark', type: 'fish' });
 			done();
 		});
+	},
+	'should delete from cache when update': function (done) {
+		this.nock
+			.put('/animals/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
+				rev: 'F1R2'
+			});
+		var cacheDel = sinon.stub().callsArg(1);
+		var smartDb = createDb({
+			databases: [
+				{
+					url: 'http://myserver.com/animals',
+					entities: {
+						fish: { }
+					}
+				}
+			],
+			cacheProvider: {
+				create: function () {
+					return {
+						del: cacheDel
+					};
+				}
+			}
+		});
+		var entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
+		smartDb.update(entity, function (err) {
+			refute(err);
+			assert.calledOnceWith(cacheDel, 'F1');
+			assert.equals(entity._rev, 'F1R2');
+			done();
+		})
 	}
 });
 
