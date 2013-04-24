@@ -7,7 +7,7 @@
     "author": "Calle Arnesten <calle.arnesten@codekick.com>",
     "main": "./lib/smartDb",
     "dependencies": {
-        "lru-cache": "*",
+        "smartDb-standardCacheProviders": "https://github.com/arnesten/smartDb-standardCacheProviders/archive/master.tar.gz",
         "nano": "*",
         "request": "*",
         "sinon": "*",
@@ -16,7 +16,7 @@
     "devDependencies": {
         "buster": "*",
         "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
-        "nock": "*"
+        "nock": "0.17.1"
     },
     "engines": {
         "node": ">=0.8.0"

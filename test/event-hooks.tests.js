@@ -70,9 +70,9 @@ module.exports = testCase('event-hooks', {
     'preInsert: can manipulate doc before save': function (done) {
         this.nock
             .post('/main', {
+                type: 'fish',
                 prop1: 'a',
-                prop2: 'b',
-                type: 'fish'
+                prop2: 'b'
             }).reply(200, { id: 'F1', rev: 'F2R' });
         var preInsertStub = sinon.spy(function (event, callback) {
             assert.equals(event.doc, {
