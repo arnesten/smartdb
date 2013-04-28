@@ -33,11 +33,11 @@ var db = smartdb({
     ],
     // getEntityCreator is optional. It enables you to map from document to entity
     getEntityCreator: function (type) {
-        return function (doc) {
-            if (type === 'user') return new User(doc);
-            if (type === 'blogPost') return new BlogPost(doc);
-            if (type === 'blogComment') return new BlogComment(doc);
-            throw new Error('Unsupported entity: ' + type);
+        if (type === 'user') return function (doc) { return new User(doc); };
+        if (type === 'blogPost') return function (doc) { return new BlogPost(doc); };
+        if (type === 'blogComment') return function (doc) { return new BlogComment(doc); }; 
+        
+        throw new Error('Unsupported entity type: ' + type);
         };   
     }
 });
@@ -59,7 +59,6 @@ db.get('blogPost', blogPostId, function (err, blogPost) {
 
     // The blogPost will be an instantiated entity BlogPost
 });
-
 ```
 
 ## API
@@ -85,7 +84,7 @@ the given entity after update complete.
 
 ### db.merge(type, id, changedProperties, callback)
 
-Change specific properties on an entity. Example:
+Change specific properties on an entity.
 
 ```javascript
 db.merge('user', userId, { email: 'a.new@email.com' }, function (err, info) {
@@ -104,7 +103,6 @@ Callback signature is `(err, entities)`.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 You do not need to pass `include_docs: true` to the args, it is automatically set.
 
-Example:
 ```javascript
 db.view('user', 'byDepartment', { key: '<DEPT_ID>' }, function (err, users) {
     // If you are using entity mappings, the returned users are real entities
@@ -121,7 +119,6 @@ Will by default use a design document with the same name as `type`. However, thi
 
 Calls a list function and returns the raw result from CouchDB. Callback signature is `(err, body)`.
 
-
 ## Options
 
 These are the options you can give when creating the smartdb instance:
@@ -133,9 +130,6 @@ You can also set cache settings per entity.
 Define one array item for each database where you have entites. 
 In the database `url` you set the full path to the database. That includes protocol (http or https), 
 optional authentication, hostname and database name.
-
-Example:
-
 ```javascript
 {
     databases: [
@@ -153,6 +147,106 @@ Example:
 }
 ```
 
+### typeProperty
+
+The property on the entity that identies the entity type. Default is `'type'`.
+```javascript
+{
+    type: 'entityType'
+}
+```
+
+### getEntityCreator
+
+Use this to define how to map a document to an entity. 
+The signature of the function to set here is `(type)` and 
+it should return a function that given a document returns an entity. 
+The default is to just returns the JSON document retrieved from the database. 
+
+```javascript
+{
+    getEntityCreator: function (type) {
+        var map = {
+            user: User,
+            blogPost: BlogPost,
+            blogComment: BlogComment
+        };
+        var Constructor = map[type];
+        return function (doc) {
+            return new Constructor(doc);
+        }
+    }
+}
+```
+
+### mapEntityToDoc
+
+Maps an entity to the document to save to the database. The default is to just use JSON.stringify() on the entity. 
+In some cases you might want to strip it of some properties or change something before saving, then define a function here.
+One way might be to have a convention to have a `toDoc()` method on entities.
+```javascript
+{
+    mapEntityToDoc: function (entity) {
+        if (entity.toDoc) {
+            return entity.toDoc();
+        }
+        return entity;
+    }
+}
+```
+
+### cacheProvider
+
+By default *smartdb* uses an in-memory cache inside the same Node.js process. 
+This works well when you only have a single Node.js process that use your CouchDB database. 
+
+If you have multiple Node.js processes the recommendation is to use the 
+[Redis cache provider](https://github.com/arnesten/smartdb-rediscacheprovider) that is available for *smartdb*.
+
+```javascript
+{
+    cacheProvider: require('smartdb-rediscacheprovider')({ /* cache provider options */  })
+}
+```
+
+### validate
+
+You might want to validate your entities before sending them to CouchDB for saving. The signature of this function is
+`(entity, callback)`. If you return an error in the callback *smartdb* will not send the request to CouchDB but
+instead return an error.
+
+```javascript
+{
+    validate: function (entity, callback) {
+        if (entity.validate) {
+            entity.validate(callback);
+        }
+        else {
+            callback();
+        }
+    }
+}
+```
+
+### rewriteView
+
+The default when using `db.view('user', 'byDepartment', ...)` is to use the view `byDepartment`
+in the design document `user`. But you might want a different strategy. If you use this option, 
+define a function that given `(type,viewName)` should return an array 
+with the following format `[designDocumentName, viewName]`
+
+Personally, I use a single view per design document to be able to add a view without causing re-indexing of many 
+other views.
+
+```javascript
+{
+    rewriteView: function (type, viewName) {
+        return [type + '-' + viewName, 'fn'];
+    }
+}
+```
+This means that `db.view('user', 'byDepartment', ...)` would go to the 
+design document `user-byDepartment` and the view named `fn`.
 
 ## License
 
