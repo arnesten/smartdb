@@ -30,15 +30,23 @@ var db = smartdb({
                 blogComment: { }
             }
         }
-    ]
+    ],
+    // getEntityCreator is optional. It enables you to map from document to entity
+    getEntityCreator: function (type) {
+        return function (doc) {
+            if (type === 'user') return new User(doc);
+            if (type === 'blogPost') return new BlogPost(doc);
+            if (type === 'blogComment') return new BlogComment(doc);
+            throw new Error('Unsupported entity: ' + type);
+        };   
+    }
 });
 
 // Saving a user
-var johnDoe = {
+var johnDoe = new User({
     fullName: 'John Doe',
-    email: 'john.doe@mail.com',
-    type: 'user' // By convention, this field is used to identify database and entity
-};
+    email: 'john.doe@mail.com'
+});
 db.save(johnDoe, function (err) {
     if (err) return handleErr(err);
 
@@ -49,8 +57,7 @@ db.save(johnDoe, function (err) {
 db.get('blogPost', blogPostId, function (err, blogPost) {
     if (err) return handleErr(err);
 
-    // By using entity mappings you could have the blogPost
-    // document mapped to a blogPost entity with methods
+    // The blogPost will be an instantiated entity BlogPost
 });
 
 ```
@@ -73,7 +80,7 @@ given entity after save complete.
 
 ### db.update(entity, callback)
 
-Updates an existing entity. Callback signature is `(err). Must have _id and _rev defined. Will automatically set _rev on
+Updates an existing entity. Callback signature is `(err)`. Must have _id and _rev defined. Will automatically set _rev on
 the given entity after update complete.
 
 ### db.merge(type, id, changedProperties, callback)
@@ -88,7 +95,7 @@ db.merge('user', userId, { email: 'a.new@email.com' }, function (err, info) {
 
 ### db.remove(type, id, callback)
 
-Removes a entity by type and ID.
+Removes an entity by type and ID.
 
 ### db.view(type, viewName, args, callback)
 
@@ -119,8 +126,32 @@ Calls a list function and returns the raw result from CouchDB. Callback signatur
 
 These are the options you can give when creating the smartdb instance:
 
+### databases
 
+An array of databases where you define where entities are located.
+You can also set cache settings per entity. 
+Define one array item for each database where you have entites. 
+In the database `url` you set the full path to the database. That includes protocol (http or https), 
+optional authentication, hostname and database name.
 
+Example:
+
+```javascript
+{
+    databases: [
+        {
+            url: 'http://username:password@somehost:5984/blog',
+            entities: {
+                blogPost: {
+                    cacheMaxAge: 5 * 60 * 1000, // Cache for 5 minutes
+                    cacheMaxSize: 100 // Have 100 items at most in the cache
+                },
+                blogComment: { } // Will not be cached
+            }
+        }
+    ]
+}
+```
 
 
 ## License
