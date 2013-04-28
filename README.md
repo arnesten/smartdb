@@ -36,8 +36,7 @@ var db = smartdb({
         if (type === 'blogPost') return function (doc) { return new BlogPost(doc); };
         if (type === 'blogComment') return function (doc) { return new BlogComment(doc); }; 
         
-        throw new Error('Unsupported entity type: ' + type);
-        };   
+        throw new Error('Unsupported entity type: ' + type); 
     }
 });
 
@@ -62,26 +61,26 @@ db.get('blogPost', blogPostId, function (err, blogPost) {
 
 ## API
 
-### db.get(type, id, callback)
+#### db.get(type, id, callback)
 
 Get entity by type and ID. Callback signature is `(err, entity)`. If no document found, will return an error.
 
-### db.getOrNull(type, id, callback)
+#### db.getOrNull(type, id, callback)
 
 Same as db.get() but return null instead of error when no document found.
 Will also return null if `id` is null/undefined, which can be useful in some situations to keep code compact.
 
-### db.save(entity, callback)
+#### db.save(entity, callback)
 
 Saves an unsaved entity. Callback signature is `(err)`. The properties _id and _rev will automatically be set on the
 given entity after save complete.
 
-### db.update(entity, callback)
+#### db.update(entity, callback)
 
 Updates an existing entity. Callback signature is `(err)`. Must have _id and _rev defined. Will automatically set _rev on
 the given entity after update complete.
 
-### db.merge(type, id, changedProperties, callback)
+#### db.merge(type, id, changedProperties, callback)
 
 Change specific properties on an entity.
 
@@ -91,11 +90,11 @@ db.merge('user', userId, { email: 'a.new@email.com' }, function (err, info) {
 });
 ```
 
-### db.remove(type, id, callback)
+#### db.remove(type, id, callback)
 
 Removes an entity by type and ID.
 
-### db.view(type, viewName, args, callback)
+#### db.view(type, viewName, args, callback)
 
 Calls a view and returns entities based on the documents in the response.
 Callback signature is `(err, entities)`.
@@ -108,13 +107,13 @@ db.view('user', 'byDepartment', { key: '<DEPT_ID>' }, function (err, users) {
 });
 ```
 
-### db.viewRaw(type, viewName, viewArgs, callback)
+#### db.viewRaw(type, viewName, viewArgs, callback)
 
 Calls a view and returns the raw JSON rows from CouchDB. Callback signature is `(err, rows)`.
 Useful when you want to use the key and value properties.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 
-### db.list(type, listName, viewName, args, callback)
+#### db.list(type, listName, viewName, args, callback)
 
 Calls a list function and returns the raw result from CouchDB. Callback signature is `(err, body)`.
 
@@ -122,7 +121,7 @@ Calls a list function and returns the raw result from CouchDB. Callback signatur
 
 These are the options you can give when creating the smartdb instance:
 
-### databases
+#### databases
 
 An array of databases where you define where entities are located.
 You can also set cache settings per entity. 
@@ -146,7 +145,7 @@ optional authentication, hostname and database name.
 }
 ```
 
-### typeProperty
+#### typeProperty
 
 The property on the entity that identies the entity type. Default is `'type'`.
 ```javascript
@@ -155,7 +154,7 @@ The property on the entity that identies the entity type. Default is `'type'`.
 }
 ```
 
-### getEntityCreator
+#### getEntityCreator
 
 Use this to define how to map a document to an entity. 
 The signature of the function to set here is `(type)` and 
@@ -178,7 +177,7 @@ The default is to just returns the JSON document retrieved from the database.
 }
 ```
 
-### mapEntityToDoc
+#### mapEntityToDoc
 
 Maps an entity to the document to save to the database. The default is to just use JSON.stringify() on the entity. 
 In some cases you might want to strip it of some properties or change something before saving, then define a function here.
@@ -194,7 +193,7 @@ One way might be to have a convention to have a `toDoc()` method on entities.
 }
 ```
 
-### cacheProvider
+#### cacheProvider
 
 By default *smartdb* uses an in-memory cache inside the same Node.js process. 
 This works well when you only have a single Node.js process that use your CouchDB database. 
@@ -208,7 +207,7 @@ If you have multiple Node.js processes the recommendation is to use the
 }
 ```
 
-### validate
+#### validate
 
 You might want to validate your entities before sending them to CouchDB for saving. The signature of this function is
 `(entity, callback)`. If you return an error in the callback *smartdb* will not send the request to CouchDB but
@@ -227,7 +226,7 @@ instead return an error.
 }
 ```
 
-### rewriteView
+#### rewriteView
 
 The default when using `db.view('user', 'byDepartment', ...)` is to use the view `byDepartment`
 in the design document `user`. But you might want a different strategy. If you use this option, 
