@@ -1,13 +1,12 @@
 {
-    "name": "smartDb",
+    "name": "smartdb",
     "version": "0.0.1",
-    "description": "CouchDB library with advanced entity and caching support",
-    "url": "https://github.com/arnesten/smartDb",
-    "keywords": ["couchdb", "couch", "database"],
+    "description": "CouchDB library with advanced entity and cache support",
+    "keywords": ["couchdb", "couch", "database", "redis"],
     "author": "Calle Arnesten <calle.arnesten@codekick.com>",
-    "main": "./lib/smartDb",
+    "main": "./lib/smartdb.js",
     "dependencies": {
-        "smartDb-standardCacheProviders": "https://github.com/arnesten/smartDb-standardCacheProviders/archive/master.tar.gz",
+        "smartdb-stdcacheproviders": "*",
         "nano": "*",
         "request": "*",
         "sinon": "*",
@@ -20,5 +19,16 @@
     },
     "engines": {
         "node": ">=0.8.0"
-    }
+    },
+    "scripts": {
+        "test": "node test/runAll.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/arnesten/smartdb"
+    },
+    "bugs": {
+        "url": "https://github.com/arnesten/smartdb/issues"
+    },
+    "license": "MIT"
 }

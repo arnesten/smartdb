@@ -20,7 +20,7 @@ module.exports = testCase('simple-crud', {
                 _rev: '1-2'
             });
         var entityCreatorStub = sinon.spy(fishChipCreator);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -32,7 +32,7 @@ module.exports = testCase('simple-crud', {
             getEntityCreator: entityCreatorStub
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
+        db.get('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
@@ -48,7 +48,7 @@ module.exports = testCase('simple-crud', {
                 'reason': 'missing'
             });
         var entityCreatorStub = sinon.spy(fishChipCreator);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -60,7 +60,7 @@ module.exports = testCase('simple-crud', {
             getEntityCreator: entityCreatorStub
         });
 
-        smartDb.get('fish', 'F1', function (err) {
+        db.get('fish', 'F1', function (err) {
             assert(err);
             done();
         });
@@ -73,7 +73,7 @@ module.exports = testCase('simple-crud', {
                 _rev: '1-2'
             });
         var entityCreatorStub = sinon.spy(fishChipCreator);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -85,7 +85,7 @@ module.exports = testCase('simple-crud', {
             getEntityCreator: entityCreatorStub
         });
 
-        smartDb.getOrNull('fish', 'F1', function (err, fish) {
+        db.getOrNull('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
@@ -101,7 +101,7 @@ module.exports = testCase('simple-crud', {
                 'reason': 'missing'
             });
         var entityCreatorStub = sinon.spy(fishChipCreator);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -113,7 +113,7 @@ module.exports = testCase('simple-crud', {
             getEntityCreator: entityCreatorStub
         });
 
-        smartDb.getOrNull('fish', 'F1', function (err, fish) {
+        db.getOrNull('fish', 'F1', function (err, fish) {
             refute(err);
             assert.isNull(fish);
             done();
@@ -126,7 +126,7 @@ module.exports = testCase('simple-crud', {
                 _id: 'C1',
                 _rev: '1-2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -144,7 +144,7 @@ module.exports = testCase('simple-crud', {
             getEntityCreator: fishChipCreator
         });
 
-        smartDb.get('chip', 'C1', function (err, chip) {
+        db.get('chip', 'C1', function (err, chip) {
             refute(err);
             assert.equals(chip, { _id: 'C1', _rev: '1-2', type: 'chip' });
             done();
@@ -157,7 +157,7 @@ module.exports = testCase('simple-crud', {
                 id: 'C1',
                 rev: 'C1R'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -169,7 +169,7 @@ module.exports = testCase('simple-crud', {
         });
         var estrella = new Chip({ name: 'Estrella' });
 
-        smartDb.save(estrella, function (err) {
+        db.save(estrella, function (err) {
             refute(err);
             assert.equals(estrella, {
                 _id: 'C1',
@@ -187,7 +187,7 @@ module.exports = testCase('simple-crud', {
                 id: 'F1',
                 rev: 'F1R'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -199,7 +199,7 @@ module.exports = testCase('simple-crud', {
         });
         var bass = new Fish({ _id: 'F1', name: 'Bass' });
 
-        smartDb.save(bass, function (err) {
+        db.save(bass, function (err) {
             refute(err);
             assert.match(bass, {
                 _id: 'F1',
@@ -215,7 +215,7 @@ module.exports = testCase('simple-crud', {
                 id: 'F1',
                 rev: 'F1R2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -227,7 +227,7 @@ module.exports = testCase('simple-crud', {
         });
         var shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
-        smartDb.update(shark, function (err) {
+        db.update(shark, function (err) {
             refute(err);
             assert.equals(shark._rev, 'F1R2');
             done();
@@ -245,7 +245,7 @@ module.exports = testCase('simple-crud', {
             .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish', motto: 'I am bad' }).reply(200, {
                 rev: 'F1R2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -257,7 +257,7 @@ module.exports = testCase('simple-crud', {
         });
 
         var that = this;
-        smartDb.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' }, function (err, res) {
+        db.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' }, function (err, res) {
             refute(err);
             assert(that.nock.isDone());
             assert.equals(res, { rev: 'F1R2' });
@@ -272,7 +272,7 @@ module.exports = testCase('simple-crud', {
                 _rev: 'F1R1'
             })
             .delete('/main/F1?rev=F1R1').reply(200, {});
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -284,7 +284,7 @@ module.exports = testCase('simple-crud', {
         });
 
         var that = this;
-        smartDb.remove('fish', 'F1', function (err) {
+        db.remove('fish', 'F1', function (err) {
             refute(err);
             assert(that.nock.isDone());
             done();
@@ -311,5 +311,5 @@ function Chip(doc) {
 }
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

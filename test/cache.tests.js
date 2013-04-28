@@ -23,7 +23,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -36,11 +36,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
+        db.get('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
-            smartDb.get('fish', 'F1', function (err, fish2) {
+            db.get('fish', 'F1', function (err, fish2) {
                 refute(err);
                 assert.equals(fish2, { _id: 'F1', _rev: 'F1R1' });
 
@@ -59,7 +59,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -70,11 +70,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
+        db.get('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
-            smartDb.get('fish', 'F1', function (err, fish2) {
+            db.get('fish', 'F1', function (err, fish2) {
                 refute(err);
                 assert.equals(fish2, { _id: 'F1', _rev: 'F1R2' });
 
@@ -97,7 +97,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -110,11 +110,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish1) {
+        db.get('fish', 'F1', function (err, fish1) {
             assert.equals(fish1, { _id: 'F1', _rev: 'F1R1' });
-            smartDb.get('fish', 'F2', function (err, fish2) {
+            db.get('fish', 'F2', function (err, fish2) {
                 assert.equals(fish2, { _id: 'F2', _rev: 'F2R1' });
-                smartDb.get('fish', 'F1', function (err, fish3) {
+                db.get('fish', 'F1', function (err, fish3) {
                     assert.equals(fish3, { _id: 'F1', _rev: 'F1R2' });
                     done();
                 });
@@ -139,7 +139,7 @@ module.exports = testCase('cache', {
                     _id: 'F1',
                     _rev: 'F1R2'
                 });
-            var smartDb = createDb({
+            var db = createDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -153,12 +153,12 @@ module.exports = testCase('cache', {
             });
 
             var that = this;
-            smartDb.get('fish', 'F1', function (err, fish) {
+            db.get('fish', 'F1', function (err, fish) {
                 assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
                 that.clock.tick(1999);
 
-                smartDb.get('fish', 'F1', function (err, fish2) {
+                db.get('fish', 'F1', function (err, fish2) {
                     assert.equals(fish2, { _id: 'F1', _rev: 'F1R1' });
                     done();
                 });
@@ -174,7 +174,7 @@ module.exports = testCase('cache', {
                     _id: 'F1',
                     _rev: 'F1R2'
                 });
-            var smartDb = createDb({
+            var db = createDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -188,12 +188,12 @@ module.exports = testCase('cache', {
             });
 
             var that = this;
-            smartDb.get('fish', 'F1', function (err, fish) {
+            db.get('fish', 'F1', function (err, fish) {
                 assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
                 that.clock.tick(2001);
 
-                smartDb.get('fish', 'F1', function (err, fish2) {
+                db.get('fish', 'F1', function (err, fish2) {
                     assert.equals(fish2, { _id: 'F1', _rev: 'F1R2' });
                     done();
                 });
@@ -216,7 +216,7 @@ module.exports = testCase('cache', {
                 _rev: 'F1R3',
                 type: 'fish'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -227,11 +227,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
-            smartDb.update(fish, function (err) {
+        db.get('fish', 'F1', function (err, fish) {
+            db.update(fish, function (err) {
                 refute(err);
 
-                smartDb.get('fish', 'F1', function (err, fish2) {
+                db.get('fish', 'F1', function (err, fish2) {
                     refute(err);
                     assert.equals(fish2, { _id: 'F1', _rev: 'F1R3', type: 'fish' });
 
@@ -257,7 +257,7 @@ module.exports = testCase('cache', {
                 name: 'Sharky',
                 type: 'fish'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -268,11 +268,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
-            smartDb.merge('fish', 'F1', { name: 'Sharky' }, function (err) {
+        db.get('fish', 'F1', function (err, fish) {
+            db.merge('fish', 'F1', { name: 'Sharky' }, function (err) {
                 refute(err);
 
-                smartDb.get('fish', 'F1', function (err, fish2) {
+                db.get('fish', 'F1', function (err, fish2) {
                     refute(err);
                     assert.equals(fish2, { _id: 'F1', _rev: 'F1R3', type: 'fish', name: 'Sharky' });
 
@@ -294,7 +294,7 @@ module.exports = testCase('cache', {
                 _rev: 'F1R2',
                 type: 'fish'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -305,11 +305,11 @@ module.exports = testCase('cache', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err, fish) {
-            smartDb.remove('fish', 'F1', function (err) {
+        db.get('fish', 'F1', function (err, fish) {
+            db.remove('fish', 'F1', function (err) {
                 refute(err);
 
-                smartDb.get('fish', 'F1', function (err, fish2) {
+                db.get('fish', 'F1', function (err, fish2) {
                     refute(err);
                     assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
 
@@ -321,5 +321,5 @@ module.exports = testCase('cache', {
 });
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

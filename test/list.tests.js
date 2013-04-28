@@ -16,7 +16,7 @@ module.exports = testCase('views', {
     'list: without rewrite': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?group=true').reply(200, '<b>Shark</b>');
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -27,7 +27,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.list('fish', 'myList', 'myView', { group: true }, function (err, result) {
+        db.list('fish', 'myList', 'myView', { group: true }, function (err, result) {
             refute(err);
 
             assert.equals(result, '<b>Shark</b>');
@@ -37,7 +37,7 @@ module.exports = testCase('views', {
     'list: with keys array': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?keys=%5B%221%22%2C2%5D').reply(200, '<b>Shark</b>');
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -48,7 +48,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.list('fish', 'myList', 'myView', { keys: ["1",2] }, function (err, result) {
+        db.list('fish', 'myList', 'myView', { keys: ["1",2] }, function (err, result) {
             refute(err);
 
             assert.equals(result, '<b>Shark</b>');
@@ -59,5 +59,5 @@ module.exports = testCase('views', {
 
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

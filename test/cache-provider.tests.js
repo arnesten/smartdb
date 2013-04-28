@@ -14,7 +14,7 @@ module.exports = testCase('cache-provider', {
 		nock.cleanAll();
 	},
 	'can use provider to get cached item': function (done) {
-		var smartDb = createDb({
+		var db = createDb({
 			databases: [
 				{
 					url: 'http://myserver.com/animals',
@@ -39,7 +39,7 @@ module.exports = testCase('cache-provider', {
 			}
 		});
 
-		smartDb.get('fish', 'F1', function (err, doc) {
+		db.get('fish', 'F1', function (err, doc) {
 			refute(err);
 			assert.equals(doc, { name: 'Shark', type: 'fish' });
 			done();
@@ -51,7 +51,7 @@ module.exports = testCase('cache-provider', {
 				rev: 'F1R2'
 			});
 		var cacheDel = sinon.stub().callsArg(1);
-		var smartDb = createDb({
+		var db = createDb({
 			databases: [
 				{
 					url: 'http://myserver.com/animals',
@@ -69,7 +69,7 @@ module.exports = testCase('cache-provider', {
 			}
 		});
 		var entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
-		smartDb.update(entity, function (err) {
+		db.update(entity, function (err) {
 			refute(err);
 			assert.calledOnceWith(cacheDel, 'F1');
 			assert.equals(entity._rev, 'F1R2');
@@ -79,5 +79,5 @@ module.exports = testCase('cache-provider', {
 });
 
 function createDb(options) {
-	return require('../lib/smartDb')(options);
+	return require('../lib/smartdb.js')(options);
 }

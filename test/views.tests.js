@@ -19,7 +19,7 @@ module.exports = testCase('views', {
                     { doc: { _id: 'F1', name: 'Great white' } }
                 ]
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -35,7 +35,7 @@ module.exports = testCase('views', {
             }
         });
 
-        smartDb.view('fish', 'getSharks', { }, function (err, sharks) {
+        db.view('fish', 'getSharks', { }, function (err, sharks) {
             refute(err);
             assert.equals(sharks, [
                 new Fish({
@@ -53,7 +53,7 @@ module.exports = testCase('views', {
                     { doc: { _id: 'F1', name: 'Great white' } }
                 ]
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -72,7 +72,7 @@ module.exports = testCase('views', {
             }
         });
 
-        smartDb.view('fish', 'getSharks', { }, function (err, sharks) {
+        db.view('fish', 'getSharks', { }, function (err, sharks) {
             refute(err);
             assert.equals(sharks, [
                 new Fish({
@@ -88,7 +88,7 @@ module.exports = testCase('views', {
             .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(404, {
                 error: 'not_found'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -99,7 +99,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.view('fish', 'getSharks', { }, function (err) {
+        db.view('fish', 'getSharks', { }, function (err) {
             assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
             done();
         });
@@ -112,7 +112,7 @@ module.exports = testCase('views', {
                     { value: 2 }
                 ]
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -123,7 +123,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.viewValue('fish', 'countBones', { }, function (err, values) {
+        db.viewValue('fish', 'countBones', { }, function (err, values) {
             refute(err);
             assert.equals(values, [1, 2]);
             done();
@@ -137,7 +137,7 @@ module.exports = testCase('views', {
                     { value: 2, key: 'Bass' }
                 ]
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -148,7 +148,7 @@ module.exports = testCase('views', {
             ]
         });
 
-        smartDb.viewRaw('fish', 'countBones', { }, function (err, values) {
+        db.viewRaw('fish', 'countBones', { }, function (err, values) {
             refute(err);
             assert.equals(values, [
                 { value: 1, key: 'Shark' },
@@ -164,5 +164,5 @@ function Fish(doc) {
 }
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

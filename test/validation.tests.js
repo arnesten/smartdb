@@ -18,7 +18,7 @@ module.exports = testCase('validation', {
                 id: 'C1',
                 rev: 'C1R'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -34,7 +34,7 @@ module.exports = testCase('validation', {
         });
         var fish = new Fish({ name: 'Shark' });
 
-        smartDb.save(fish, function (err) {
+        db.save(fish, function (err) {
             assert.equals(err, new Error('Invalid'));
             refute(fish._id);
             done();
@@ -46,7 +46,7 @@ module.exports = testCase('validation', {
                 id: 'C1',
                 rev: 'C1R'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -62,7 +62,7 @@ module.exports = testCase('validation', {
         });
         var fish = new Fish({ name: 'Shark' });
 
-        smartDb.save(fish, function (err) {
+        db.save(fish, function (err) {
             refute(err);
             assert(fish._id);
             done();
@@ -74,7 +74,7 @@ module.exports = testCase('validation', {
                 _id: 'F1',
                 type: 'fish'
             });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -89,7 +89,7 @@ module.exports = testCase('validation', {
             }
         });
 
-        smartDb.merge('fish', 'F1', { change: true }, function (err) {
+        db.merge('fish', 'F1', { change: true }, function (err) {
             assert.equals(err, new Error('ValidationError'));
             done();
         });
@@ -102,5 +102,5 @@ function Fish(doc) {
 }
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

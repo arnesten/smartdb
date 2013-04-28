@@ -15,7 +15,7 @@ module.exports = testCase('auth', {
     'get: when giving auth and error appears, should NOT show authentication info': function (done) {
         this.nock
             .get('/animals/F1').reply(500);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',
@@ -26,7 +26,7 @@ module.exports = testCase('auth', {
             ]
         });
 
-        smartDb.get('fish', 'F1', function (err) {
+        db.get('fish', 'F1', function (err) {
             assert(err);
             assert(JSON.stringify(err).indexOf('admin:12345') < 0);
             done();
@@ -35,7 +35,7 @@ module.exports = testCase('auth', {
     'list: when giving auth and error appears, should NOT show authentication info': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView').reply(500);
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',
@@ -46,7 +46,7 @@ module.exports = testCase('auth', {
             ]
         });
 
-        smartDb.list('fish', 'myList', 'myView', {}, function (err) {
+        db.list('fish', 'myList', 'myView', {}, function (err) {
             assert(err);
             assert(JSON.stringify(err).indexOf('admin:12345') < 0);
             done();
@@ -55,5 +55,5 @@ module.exports = testCase('auth', {
 });
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }

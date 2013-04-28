@@ -44,7 +44,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -59,7 +59,7 @@ module.exports = testCase('event-hooks', {
         });
 
         var that = this;
-        smartDb.merge('fish', 'F1', { prop1: 'a' }, function (err, res) {
+        db.merge('fish', 'F1', { prop1: 'a' }, function (err, res) {
             refute(err);
             assert.equals(res, { rev: 'F2R' });
             assert.calledOnce(preInsertStub);
@@ -92,7 +92,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -108,7 +108,7 @@ module.exports = testCase('event-hooks', {
 
         var that = this;
         var entity = { type: 'fish', prop1: 'a' };
-        smartDb.save(entity, function (err) {
+        db.save(entity, function (err) {
             refute(err);
             assert.equals(entity._id, 'F1');
             assert.equals(entity._rev, 'F2R');
@@ -147,7 +147,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var smartDb = createDb({
+        var db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -163,7 +163,7 @@ module.exports = testCase('event-hooks', {
 
         var that = this;
         var entity = { _id: 'F1', _rev: 'F1R', type: 'fish', prop1: 'a' };
-        smartDb.update(entity, function (err) {
+        db.update(entity, function (err) {
             refute(err);
             assert.equals(entity._rev, 'F2R');
             assert.calledOnce(preInsertStub);
@@ -175,5 +175,5 @@ module.exports = testCase('event-hooks', {
 });
 
 function createDb(options) {
-    return require('../lib/smartDb')(options);
+    return require('../lib/smartdb.js')(options);
 }
