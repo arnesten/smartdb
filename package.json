@@ -2,7 +2,7 @@
     "name": "smartdb",
     "version": "0.0.1",
     "description": "CouchDB library with advanced entity and cache support",
-    "keywords": ["couchdb", "couch", "database", "redis"],
+    "keywords": ["couchdb", "cache", "couch", "database", "redis", "odm", "object document mapper"],
     "author": "Calle Arnesten <calle.arnesten@codekick.com>",
     "main": "./lib/smartdb.js",
     "dependencies": {
