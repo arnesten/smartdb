@@ -3,6 +3,7 @@
 CouchDB library for Node.js with advanced entity and cache support
 
 Features:
+
 * **Document <-> entity mappings** - configure how to map your document to entities and back again
 * **Cache** - get a performance boost by using the in-memory cache, Redis cache or your custom cache
 * **Validation** - validate your entities before saving
