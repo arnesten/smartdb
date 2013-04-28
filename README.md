@@ -6,7 +6,6 @@ Features:
 * **Document <-> entity mappings** - configure how to map your document to entities and back again
 * **Cache** - get a performance boost by using the in-memory cache, Redis cache or your custom cache
 * **Validation** - validate your entities before saving
-* **Event hooks** - make changes to your document directly before saving a document
 * **Multi-database support** - use different databases for different entities transparently
 * **Unit test support** - intelligent fake instance to use for your tests
 
@@ -247,6 +246,36 @@ other views.
 ```
 This means that `db.view('user', 'byDepartment', ...)` would go to the 
 design document `user-byDepartment` and the view named `fn`.
+
+## Unit testing
+
+To simplify unit testing while using *smartdb* an intelligent fake has been included.
+
+```javascript
+var fakeDb = require('smartdb').fake;
+
+var db = fakeDb({
+    entities: [
+        new User({ _id: 'U1', name: 'John Doe' })
+    ],
+    views: {
+        'user/byDepartment': function (args) {
+            return [null, [
+                new User({ _id: 'U2', 'John Smith' })
+                ]
+            ];
+        }
+    }
+});
+
+db.get('user', 'U1', function (err, user) {
+   // user will be John Doe 
+});
+
+db.view('user', 'byDepartment', { }, function (err, users) {
+    // users will be an array containing John Smith
+})
+```
 
 ## License
 
