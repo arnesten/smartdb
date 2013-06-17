@@ -17,9 +17,10 @@ module.exports = testCase('simple-crud', {
         this.nock
             .get('/main/F1').reply(200, {
                 _id: 'F1',
-                _rev: '1-2'
+                _rev: '1-2',
+				type: 'fish'
             });
-        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
             databases: [
                 {
@@ -29,17 +30,37 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            getEntityCreator: entityCreatorStub
+            mapDocToEntity: mapDocToEntity
         });
 
         db.get('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
-            assert.calledWith(entityCreatorStub, 'fish');
+            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
             done();
         });
     },
+
+	'get: if type not defined, throw exception': function (done) {
+		var db = createDb({
+			databases: [
+				{
+					url: 'http://myserver.com/main',
+					entities: {
+						fish: {}
+					}
+				}
+			]
+		});
+
+		db.get('chip', 'C1', function (err) {
+			assert(err);
+			assert.equals(err.message, 'Type not defined "chip"');
+
+			done();
+		});
+	},
 
     'get: entity that does NOT exist should give error': function (done) {
         this.nock
@@ -47,7 +68,7 @@ module.exports = testCase('simple-crud', {
                 'error': 'not_found',
                 'reason': 'missing'
             });
-        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
             databases: [
                 {
@@ -57,7 +78,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            getEntityCreator: entityCreatorStub
+			mapDocToEntity: mapDocToEntity
         });
 
         db.get('fish', 'F1', function (err) {
@@ -70,9 +91,10 @@ module.exports = testCase('simple-crud', {
         this.nock
             .get('/main/F1').reply(200, {
                 _id: 'F1',
-                _rev: '1-2'
+                _rev: '1-2',
+				type: 'fish'
             });
-        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
             databases: [
                 {
@@ -82,14 +104,14 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            getEntityCreator: entityCreatorStub
+            mapDocToEntity: mapDocToEntity
         });
 
         db.getOrNull('fish', 'F1', function (err, fish) {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
-            assert.calledWith(entityCreatorStub, 'fish');
+            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
             done();
         });
     },
@@ -100,7 +122,7 @@ module.exports = testCase('simple-crud', {
                 'error': 'not_found',
                 'reason': 'missing'
             });
-        var entityCreatorStub = sinon.spy(fishChipCreator);
+        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
             databases: [
                 {
@@ -110,7 +132,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            getEntityCreator: entityCreatorStub
+            mapDocToEntity: mapDocToEntity
         });
 
         db.getOrNull('fish', 'F1', function (err, fish) {
@@ -124,7 +146,8 @@ module.exports = testCase('simple-crud', {
         this.nock
             .get('/chips/C1').reply(200, {
                 _id: 'C1',
-                _rev: '1-2'
+                _rev: '1-2',
+				type: 'chip'
             });
         var db = createDb({
             databases: [
@@ -141,7 +164,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            getEntityCreator: fishChipCreator
+            mapDocToEntity: fishChipMapDocToEntity
         });
 
         db.get('chip', 'C1', function (err, chip) {
@@ -292,12 +315,12 @@ module.exports = testCase('simple-crud', {
     }
 });
 
-function fishChipCreator(type) {
-    return function (doc) {
-        if (type === 'fish') return new Fish(doc);
-        if (type === 'chip') return new Chip(doc);
-        throw new Error();
-    };
+function fishChipMapDocToEntity(doc) {
+	var type = doc.type;
+	if (type === 'fish') return new Fish(doc);
+	if (type === 'chip') return new Chip(doc);
+
+	throw new Error();
 }
 
 function Fish(doc) {

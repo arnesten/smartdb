@@ -28,7 +28,7 @@ module.exports = testCase('views', {
                     }
                 }
             ],
-            getEntityCreator: function (type) {
+            getEntityCreator: function () {
                 return function (doc) {
                     return new Fish(doc);
                 }
@@ -46,6 +46,47 @@ module.exports = testCase('views', {
             done();
         });
     },
+	'view: where one of the docs are not set, should ignore': function (done) {
+		this.nock
+			.get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(200, {
+				rows: [
+					{ doc: { _id: 'F1', name: 'Great white' } },
+					{ },
+					{ doc: { _id: 'F2', name: 'Small blue' } },
+				]
+			});
+		var db = createDb({
+			databases: [
+				{
+					url: 'http://myserver.com/animals',
+					entities: {
+						fish: {}
+					}
+				}
+			],
+			getEntityCreator: function () {
+				return function (doc) {
+					return new Fish(doc);
+				}
+			}
+		});
+
+		db.view('fish', 'getSharks', { }, function (err, sharks) {
+			refute(err);
+			assert.equals(sharks, [
+				new Fish({
+					_id: 'F1',
+					name: 'Great white'
+				}),
+				new Fish({
+					_id: 'F2',
+					name: 'Small blue'
+				})
+			]);
+			done();
+		});
+	},
+
     'view: with specified rewrite': function (done) {
         this.nock
             .get('/animals/_design/fish-getSharks/_view/fn?include_docs=true').reply(200, {

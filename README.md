@@ -31,11 +31,12 @@ var db = smartdb({
             }
         }
     ],
-    // getEntityCreator is optional. It enables you to map from document to entity
-    getEntityCreator: function (type) {
-        if (type === 'user') return function (doc) { return new User(doc); };
-        if (type === 'blogPost') return function (doc) { return new BlogPost(doc); };
-        if (type === 'blogComment') return function (doc) { return new BlogComment(doc); }; 
+    // This is optional. It enables you to map from document to entity
+    mapDocToEntity: function (doc) {
+        var type = doc.type;
+        if (type === 'user') return new User(doc);
+        if (type === 'blogPost') return new BlogPost(doc);
+        if (type === 'blogComment') return new BlogComment(doc);
         
         throw new Error('Unsupported entity type: ' + type); 
     }
@@ -155,25 +156,21 @@ The property on the entity that identies the entity type. Default is `'type'`.
 }
 ```
 
-#### getEntityCreator
+#### mapDocToEntity
 
-Use this to define how to map a document to an entity. 
-The signature of the function to set here is `(type)` and 
-it should return a function that given a document returns an entity. 
-The default is to just returns the JSON document retrieved from the database. 
+Maps a document to an entity. This is useful if you want to wrap the document and add methods to interact with the data.
+The default is to just returns the JSON document retrieved from the database.
 
 ```javascript
 {
-    getEntityCreator: function (type) {
+    mapDocToEntity: function (doc) {
         var map = {
             user: User,
             blogPost: BlogPost,
             blogComment: BlogComment
         };
-        var Constructor = map[type];
-        return function (doc) {
-            return new Constructor(doc);
-        }
+        var Constructor = map[doc.type];
+        return new Constructor(doc);
     }
 }
 ```
