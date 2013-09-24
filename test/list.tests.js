@@ -2,8 +2,8 @@ var _ = require('underscore');
 var buster = require('buster');
 var sinon = require('sinon');
 var testCase = buster.testCase;
-var assert = buster.assertions.assert;
-var refute = buster.assertions.refute;
+var assert = buster.assert;
+var refute = buster.refute;
 var nock = require('nock');
 
 module.exports = testCase('views', {

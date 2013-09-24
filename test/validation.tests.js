@@ -1,8 +1,8 @@
 var _ = require('underscore');
 var buster = require('buster');
 var testCase = buster.testCase;
-var assert = buster.assertions.assert;
-var refute = buster.assertions.refute;
+var assert = buster.assert;
+var refute = buster.refute;
 var nock = require('nock');
 
 module.exports = testCase('validation', {
