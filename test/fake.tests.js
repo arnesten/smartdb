@@ -19,6 +19,20 @@ module.exports = testCase('fake', {
             done();
         });
     },
+	'get() works in async mode': function (done) {
+		var fakeDb = createFake({
+			async: true,
+			entities: [
+				{ _id: 'F1', type: 'fish', name: 'Shark' }
+			]
+		});
+
+		fakeDb.get('fish', 'F1', function (err, doc) {
+			refute(err);
+			assert.equals(doc, { _id: 'F1', type: 'fish', name: 'Shark' });
+			done();
+		});
+	},
 	'can force async mode': function () {
 		var fish1 = { _id: 'F1', type: 'fish', name: 'Shark' };
 		var fish2 = { _id: 'F2', type: 'fish', name: 'Shark' };
