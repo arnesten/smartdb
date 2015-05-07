@@ -1,34 +1,43 @@
 {
-    "name": "smartdb",
-    "version": "1.2.2",
-    "description": "CouchDB library with advanced entity and cache support",
-    "keywords": ["couchdb", "cache", "couch", "database", "redis", "odm", "object document mapper"],
-    "author": "Calle Arnesten <calle.arnesten@codekick.com>",
-    "main": "./lib/smartdb.js",
-    "dependencies": {
-        "smartdb-stdcacheproviders": "*",
-        "nano": "^4.4.0",
-        "request": "*",
-        "sinon": "*",
-        "underscore": "*"
-    },
-    "devDependencies": {
-        "buster": "*",
-        "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
-        "nock": "0.17.1"
-    },
-    "engines": {
-        "node": ">=0.10.0"
-    },
-    "scripts": {
-        "test": "node test/runAll.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/arnesten/smartdb"
-    },
-    "bugs": {
-        "url": "https://github.com/arnesten/smartdb/issues"
-    },
-    "license": "MIT"
+  "name": "smartdb",
+  "version": "2.0.0",
+  "description": "CouchDB library with advanced entity and cache support",
+  "keywords": [
+    "couchdb",
+    "cache",
+    "couch",
+    "database",
+    "redis",
+    "odm",
+    "object document mapper"
+  ],
+  "author": "Calle Arnesten <calle.arnesten@codekick.com>",
+  "main": "./lib/smartdb.js",
+  "dependencies": {
+    "agentkeepalive": "*",
+    "smartdb-stdcacheproviders": "*",
+    "nano": "^4.4.0",
+    "request": "*",
+    "sinon": "*",
+    "underscore": "*"
+  },
+  "devDependencies": {
+    "buster": "*",
+    "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
+    "nock": "0.17.1"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "node test/runAll.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arnesten/smartdb"
+  },
+  "bugs": {
+    "url": "https://github.com/arnesten/smartdb/issues"
+  },
+  "license": "MIT"
 }
