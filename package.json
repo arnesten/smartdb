@@ -15,11 +15,10 @@
   "main": "./lib/smartdb.js",
   "dependencies": {
     "agentkeepalive": "*",
-    "smartdb-stdcacheproviders": "*",
-    "nano": "^4.4.0",
+    "nano": "^6.1.5",
     "request": "*",
     "sinon": "*",
-    "underscore": "*"
+    "smartdb-stdcacheproviders": "*"
   },
   "devDependencies": {
     "buster": "*",

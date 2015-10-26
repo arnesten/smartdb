@@ -17,7 +17,7 @@ module.exports = testCase('simple-crud', {
             .get('/main/F1').reply(200, {
                 _id: 'F1',
                 _rev: '1-2',
-				type: 'fish'
+                type: 'fish'
             });
         var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
@@ -41,25 +41,25 @@ module.exports = testCase('simple-crud', {
         });
     },
 
-	'get: if type not defined, throw exception': function (done) {
-		var db = createDb({
-			databases: [
-				{
-					url: 'http://myserver.com/main',
-					entities: {
-						fish: {}
-					}
-				}
-			]
-		});
+    'get: if type not defined, throw exception': function (done) {
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
 
-		db.get('chip', 'C1', function (err) {
-			assert(err);
-			assert.equals(err.message, 'Type not defined "chip"');
+        db.get('chip', 'C1', function (err) {
+            assert(err);
+            assert.equals(err.message, 'Type not defined "chip"');
 
-			done();
-		});
-	},
+            done();
+        });
+    },
 
     'get: entity that does NOT exist should give error': function (done) {
         this.nock
@@ -77,7 +77,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-			mapDocToEntity: mapDocToEntity
+            mapDocToEntity: mapDocToEntity
         });
 
         db.get('fish', 'F1', function (err) {
@@ -91,7 +91,7 @@ module.exports = testCase('simple-crud', {
             .get('/main/F1').reply(200, {
                 _id: 'F1',
                 _rev: '1-2',
-				type: 'fish'
+                type: 'fish'
             });
         var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
         var db = createDb({
@@ -146,7 +146,7 @@ module.exports = testCase('simple-crud', {
             .get('/chips/C1').reply(200, {
                 _id: 'C1',
                 _rev: '1-2',
-				type: 'chip'
+                type: 'chip'
             });
         var db = createDb({
             databases: [
@@ -231,6 +231,34 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'trying to save task with id that conflicts should give EntityConflictError': function (done) {
+        this.nock
+            .put('/main/F1', { name: 'Shark', type: 'fish' }).reply(409);
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+        var shark = new Fish({ _id: 'F1', name: 'Shark' });
+
+        db.save(shark, err => {
+            assert.equals(err.name, 'EntityConflictError');
+            assert.equals(err.message, 'Conflict when trying to persist entity change');
+            assert.equals(err.scope, 'smartdb');
+            assert.equals(err.entityId, 'F1');
+            assert.equals(err.entityType, 'fish');
+            assert.match(err.request, { method: 'PUT', uri: 'http://myserver.com/main/F1' });
+            assert.match(err.response, { statusCode: 409, headers: { uri: 'http://myserver.com/main/F1' } });
+            assert(this.nock.isDone());
+            done();
+        });
+    },
+
     'updating entity': function (done) {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
@@ -252,6 +280,32 @@ module.exports = testCase('simple-crud', {
         db.update(shark, function (err) {
             refute(err);
             assert.equals(shark._rev, 'F1R2');
+            done();
+        });
+    },
+
+    'trying to update entity that conflicts should give EntityConflictError': function (done) {
+        this.nock
+            .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(409);
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+        var shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
+
+        db.update(shark, err => {
+            assert.equals(err.name, 'EntityConflictError');
+            assert.equals(err.entityId, 'F1');
+            assert.equals(err.entityType, 'fish');
+            assert(err.request);
+            assert(err.response);
+            assert(this.nock.isDone());
             done();
         });
     },
@@ -287,6 +341,62 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'trying to merge entity that conflicts should give EntityConflictError': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                _rev: 'F1R1',
+                name: 'Shark',
+                type: 'fish'
+            })
+            .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish' }).reply(409);
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        db.merge('fish', 'F1', { name: 'White shark' }, err => {
+            assert.equals(err.name, 'EntityConflictError');
+            assert.equals(err.entityId, 'F1');
+            assert.equals(err.entityType, 'fish');
+            assert(err.request);
+            assert(err.response);
+            assert(this.nock.isDone());
+            done();
+        });
+    },
+
+    'trying to merge entity that no longer exists should give EntityMissingError': function (done) {
+        this.nock
+            .get('/main/F1').reply(404);
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        db.merge('fish', 'F1', { name: 'White shark' }, err => {
+            assert.equals(err.name, 'EntityMissingError');
+            assert.equals(err.entityId, 'F1');
+            assert.equals(err.entityType, 'fish');
+            assert(err.request);
+            assert(err.response);
+            assert(this.nock.isDone());
+            done();
+        });
+    },
+
     'removing entity': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
@@ -311,15 +421,44 @@ module.exports = testCase('simple-crud', {
             assert(that.nock.isDone());
             done();
         })
+    },
+
+    'trying to remove entity that conflicts should give EntityConflictError': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+                _id: 'F1',
+                _rev: 'F1R1'
+            })
+            .delete('/main/F1?rev=F1R1').reply(409);
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        db.remove('fish', 'F1', err => {
+            assert.equals(err.name, 'EntityConflictError');
+            assert.equals(err.entityId, 'F1');
+            assert.equals(err.entityType, 'fish');
+            assert(err.request);
+            assert(err.response);
+            assert(this.nock.isDone());
+            done();
+        });
     }
 });
 
 function fishChipMapDocToEntity(doc) {
-	var type = doc.type;
-	if (type === 'fish') return new Fish(doc);
-	if (type === 'chip') return new Chip(doc);
+    var type = doc.type;
+    if (type === 'fish') return new Fish(doc);
+    if (type === 'chip') return new Chip(doc);
 
-	throw new Error();
+    throw new Error();
 }
 
 function Fish(doc) {

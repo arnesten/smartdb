@@ -244,6 +244,42 @@ other views.
 This means that `db.view('user', 'byDepartment', ...)` would go to the 
 design document `user-byDepartment` and the view named `fn`.
 
+## Errors
+
+For `get` and `merge` if entity does not exist, gives the following error:
+
+```javascript
+{
+    name: 'EntityMissingError',
+    message: 'Entity is missing',
+    scope: 'smartdb',
+    entityId: 'XYZ123',
+    entityType: 'user'
+}
+```
+
+For `save`, `merge`, `remove` and `update` if you get a conflict, gives the following error:
+```javascript
+{
+    name: 'EntityConflictError',
+    message: 'Conflict when trying to persist entity change',
+    scope: 'smartdb',
+    entityId: 'XYZ123',
+    entityType: 'user'
+    request: {
+        method: 'PUT',
+        headers: { ... },
+        uri: 'http://...',
+        body: '{ ... }'
+    },
+    response: {
+        statusCode: 409,
+        headers: { ... }
+    }
+}
+```
+
+
 ## Unit testing
 
 To simplify unit testing while using *smartdb* an intelligent fake has been included.
@@ -278,7 +314,7 @@ db.view('user', 'byDepartment', { }, function (err, users) {
 
 (The MIT License)
 
-Copyright (c) 2013 Calle Arnesten
+Copyright (c) 2013-2015 Calle Arnesten
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
