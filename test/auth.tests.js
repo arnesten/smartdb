@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var buster = require('buster');
 var testCase = buster.testCase;
 var assert = buster.assert;

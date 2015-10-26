@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var buster = require('buster');
 var testCase = buster.testCase;
 var assert = buster.assert;
@@ -201,7 +200,7 @@ module.exports = testCase('views', {
 });
 
 function Fish(doc) {
-    _.extend(this, doc);
+    Object.assign(this, doc);
 }
 
 function createDb(options) {

@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var buster = require('buster');
 var sinon = require('sinon');
 var testCase = buster.testCase;
@@ -324,12 +323,12 @@ function fishChipMapDocToEntity(doc) {
 }
 
 function Fish(doc) {
-    _.extend(this, doc);
+    Object.assign(this, doc);
     this.type = 'fish';
 }
 
 function Chip(doc) {
-    _.extend(this, doc);
+    Object.assign(this, doc);
     this.type = 'chip';
 }
 

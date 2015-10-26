@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var buster = require('buster');
 var testCase = buster.testCase;
 var assert = buster.assert;
@@ -97,7 +96,7 @@ module.exports = testCase('validation', {
 });
 
 function Fish(doc) {
-    _.extend(this, doc);
+    Object.assign(this, doc);
     this.type = 'fish';
 }
 

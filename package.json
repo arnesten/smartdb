@@ -27,7 +27,7 @@
     "nock": "0.17.1"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.2.1"
   },
   "scripts": {
     "test": "node test/runAll.js"
