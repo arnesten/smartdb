@@ -61,6 +61,26 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'get: if ID empty string, throw exception': function (done) {
+        var db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        db.get('chip', '', function (err) {
+            assert(err);
+            assert.equals(err.message, 'id required');
+
+            done();
+        });
+    },
+
     'get: entity that does NOT exist should give error': function (done) {
         this.nock
             .get('/main/F1').reply(404, {
