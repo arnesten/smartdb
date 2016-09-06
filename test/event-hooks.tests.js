@@ -1,8 +1,8 @@
-var buster = require('buster');
+var bocha = require('bocha');
 var sinon = require('sinon');
-var testCase = buster.testCase;
-var assert = buster.assert;
-var refute = buster.refute;
+var testCase = bocha.testCase;
+var assert = bocha.assert;
+var refute = bocha.refute;
 var nock = require('nock');
 
 module.exports = testCase('event-hooks', {

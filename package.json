@@ -21,12 +21,8 @@
     "smartdb-stdcacheproviders": "*"
   },
   "devDependencies": {
-    "buster": "*",
-    "buster-helpers": "https://github.com/arnesten/buster-helpers/archive/master.tar.gz",
+    "bocha": "^1.0.0",
     "nock": "0.17.1"
-  },
-  "engines": {
-    "node": ">=4.2.1"
   },
   "scripts": {
     "test": "node test/runAll.js"

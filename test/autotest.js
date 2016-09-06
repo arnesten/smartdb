@@ -1,7 +1,7 @@
 var path = require('path');
-var busterHelpers = require('buster-helpers');
+var bocha = require('bocha');
 
-busterHelpers.startAutoTest({
+bocha.watch({
     srcPath: path.join(__dirname, '..'),
     testPath: __dirname,
     fileSuffix: '.tests.js'

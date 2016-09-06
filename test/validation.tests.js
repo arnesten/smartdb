@@ -1,7 +1,7 @@
-var buster = require('buster');
-var testCase = buster.testCase;
-var assert = buster.assert;
-var refute = buster.refute;
+var bocha = require('bocha');
+var testCase = bocha.testCase;
+var assert = bocha.assert;
+var refute = bocha.refute;
 var nock = require('nock');
 
 module.exports = testCase('validation', {

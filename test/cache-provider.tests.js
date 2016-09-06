@@ -1,8 +1,8 @@
-var buster = require('buster');
+var bocha = require('bocha');
 var sinon = require('sinon');
-var testCase = buster.testCase;
-var assert = buster.assert;
-var refute = buster.refute;
+var testCase = bocha.testCase;
+var assert = bocha.assert;
+var refute = bocha.refute;
 var nock = require('nock');
 
 module.exports = testCase('cache-provider', {
@@ -70,10 +70,11 @@ module.exports = testCase('cache-provider', {
 		var entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
 		db.update(entity, function (err) {
 			refute(err);
-			assert.calledOnceWith(cacheDel, 'F1');
+			assert.calledOnce(cacheDel);
+			assert.calledWith(cacheDel, 'F1');
 			assert.equals(entity._rev, 'F1R2');
 			done();
-		})
+		});
 	}
 });
 
