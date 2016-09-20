@@ -18,6 +18,17 @@ module.exports = testCase('fake', {
             done();
         });
     },
+    'get() without callback returns promise': function () {
+        var fakeDb = createFake({
+            entities: [
+                { _id: 'F1', type: 'fish', name: 'Shark' }
+            ]
+        });
+
+        return fakeDb.get('fish', 'F1').then(doc => {
+            assert.equals(doc, { _id: 'F1', type: 'fish', name: 'Shark' });
+        });
+    },
 	'get() works in async mode': function (done) {
 		var fakeDb = createFake({
 			async: true,
@@ -32,6 +43,18 @@ module.exports = testCase('fake', {
 			done();
 		});
 	},
+    'get() with async mode and without callback returns promise': function () {
+        var fakeDb = createFake({
+            async: true,
+            entities: [
+                { _id: 'F1', type: 'fish', name: 'Shark' }
+            ]
+        });
+
+        return fakeDb.get('fish', 'F1').then(doc => {
+            assert.equals(doc, { _id: 'F1', type: 'fish', name: 'Shark' });
+        });
+    },
 	'can force async mode': function () {
 		var fish1 = { _id: 'F1', type: 'fish', name: 'Shark' };
 		var fish2 = { _id: 'F2', type: 'fish', name: 'Shark' };

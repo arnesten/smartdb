@@ -1,9 +1,10 @@
-var bocha = require('bocha');
-var sinon = require('sinon');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+'use strict';
+let bocha = require('bocha');
+let sinon = require('sinon');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('simple-crud', {
     setUp: function () {
@@ -15,12 +16,12 @@ module.exports = testCase('simple-crud', {
     'get: entity that exists': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: '1-2',
-                type: 'fish'
-            });
-        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        var db = createDb({
+            _id: 'F1',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -41,8 +42,35 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'get: without callback returns promise': function () {
+        this.nock
+            .get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            mapDocToEntity: mapDocToEntity
+        });
+
+        return db.get('fish', 'F1').then(fish => {
+            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
+            assert.equals(fish.constructor, Fish);
+            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
+        });
+    },
+
     'get: if type not defined, throw exception': function (done) {
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -62,7 +90,7 @@ module.exports = testCase('simple-crud', {
     },
 
     'get: if ID empty string, throw exception': function (done) {
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -84,11 +112,11 @@ module.exports = testCase('simple-crud', {
     'get: entity that does NOT exist should give error': function (done) {
         this.nock
             .get('/main/F1').reply(404, {
-                'error': 'not_found',
-                'reason': 'missing'
-            });
-        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        var db = createDb({
+            'error': 'not_found',
+            'reason': 'missing'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -109,12 +137,12 @@ module.exports = testCase('simple-crud', {
     'getOrNull: entity that exists': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: '1-2',
-                type: 'fish'
-            });
-        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        var db = createDb({
+            _id: 'F1',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -135,14 +163,41 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'getOrNull: without callback returns promise': function () {
+        this.nock
+            .get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            mapDocToEntity: mapDocToEntity
+        });
+
+        return db.getOrNull('fish', 'F1').then(fish => {
+            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
+            assert.equals(fish.constructor, Fish);
+            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
+        });
+    },
+
     'getOrNull: entity that does NOT exists should give null': function (done) {
         this.nock
             .get('/main/F1').reply(404, {
-                'error': 'not_found',
-                'reason': 'missing'
-            });
-        var mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        var db = createDb({
+            'error': 'not_found',
+            'reason': 'missing'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -164,11 +219,11 @@ module.exports = testCase('simple-crud', {
     'having multiple databases defined, should get from correct': function (done) {
         this.nock
             .get('/chips/C1').reply(200, {
-                _id: 'C1',
-                _rev: '1-2',
-                type: 'chip'
-            });
-        var db = createDb({
+            _id: 'C1',
+            _rev: '1-2',
+            type: 'chip'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -196,10 +251,10 @@ module.exports = testCase('simple-crud', {
     'saving an entity without specifying ID': function (done) {
         this.nock
             .post('/main', { name: 'Estrella', type: 'chip' }).reply(200, {
-                id: 'C1',
-                rev: 'C1R'
-            });
-        var db = createDb({
+            id: 'C1',
+            rev: 'C1R'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -209,7 +264,7 @@ module.exports = testCase('simple-crud', {
                 }
             ]
         });
-        var estrella = new Chip({ name: 'Estrella' });
+        let estrella = new Chip({ name: 'Estrella' });
 
         db.save(estrella, function (err) {
             refute(err);
@@ -223,13 +278,41 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'save: without callback returns promise': function () {
+        this.nock
+            .post('/main', { name: 'Estrella', type: 'chip' }).reply(200, {
+            id: 'C1',
+            rev: 'C1R'
+        });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        chip: {}
+                    }
+                }
+            ]
+        });
+        let estrella = new Chip({ name: 'Estrella' });
+
+        return db.save(estrella).then(() => {
+            assert.equals(estrella, {
+                _id: 'C1',
+                _rev: 'C1R',
+                name: 'Estrella',
+                type: 'chip'
+            });
+        });
+    },
+
     'saving entity with predefined ID': function (done) {
         this.nock
             .put('/main/F1', { name: 'Bass', type: 'fish' }).reply(200, {
-                id: 'F1',
-                rev: 'F1R'
-            });
-        var db = createDb({
+            id: 'F1',
+            rev: 'F1R'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -239,7 +322,7 @@ module.exports = testCase('simple-crud', {
                 }
             ]
         });
-        var bass = new Fish({ _id: 'F1', name: 'Bass' });
+        let bass = new Fish({ _id: 'F1', name: 'Bass' });
 
         db.save(bass, function (err) {
             refute(err);
@@ -254,7 +337,7 @@ module.exports = testCase('simple-crud', {
     'trying to save task with id that conflicts should give EntityConflictError': function (done) {
         this.nock
             .put('/main/F1', { name: 'Shark', type: 'fish' }).reply(409);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -264,7 +347,7 @@ module.exports = testCase('simple-crud', {
                 }
             ]
         });
-        var shark = new Fish({ _id: 'F1', name: 'Shark' });
+        let shark = new Fish({ _id: 'F1', name: 'Shark' });
 
         db.save(shark, err => {
             assert.equals(err.name, 'EntityConflictError');
@@ -282,10 +365,10 @@ module.exports = testCase('simple-crud', {
     'updating entity': function (done) {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
-                id: 'F1',
-                rev: 'F1R2'
-            });
-        var db = createDb({
+            id: 'F1',
+            rev: 'F1R2'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -295,7 +378,7 @@ module.exports = testCase('simple-crud', {
                 }
             ]
         });
-        var shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
+        let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
         db.update(shark, function (err) {
             refute(err);
@@ -304,10 +387,13 @@ module.exports = testCase('simple-crud', {
         });
     },
 
-    'trying to update entity that conflicts should give EntityConflictError': function (done) {
+    'update: without callback should return promise': function () {
         this.nock
-            .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(409);
-        var db = createDb({
+            .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
+            id: 'F1',
+            rev: 'F1R2'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -317,7 +403,27 @@ module.exports = testCase('simple-crud', {
                 }
             ]
         });
-        var shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
+        let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
+
+        return db.update(shark).then(() => {
+            assert.equals(shark._rev, 'F1R2');
+        });
+    },
+
+    'trying to update entity that conflicts should give EntityConflictError': function (done) {
+        this.nock
+            .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(409);
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+        let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
         db.update(shark, err => {
             assert.equals(err.name, 'EntityConflictError');
@@ -333,15 +439,15 @@ module.exports = testCase('simple-crud', {
     'merging entity': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: 'F1R1',
-                name: 'Shark',
-                type: 'fish'
-            })
+            _id: 'F1',
+            _rev: 'F1R1',
+            name: 'Shark',
+            type: 'fish'
+        })
             .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish', motto: 'I am bad' }).reply(200, {
-                rev: 'F1R2'
-            });
-        var db = createDb({
+            rev: 'F1R2'
+        });
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -352,7 +458,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        var that = this;
+        let that = this;
         db.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' }, function (err, res) {
             refute(err);
             assert(that.nock.isDone());
@@ -364,13 +470,13 @@ module.exports = testCase('simple-crud', {
     'trying to merge entity that conflicts should give EntityConflictError': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: 'F1R1',
-                name: 'Shark',
-                type: 'fish'
-            })
+            _id: 'F1',
+            _rev: 'F1R1',
+            name: 'Shark',
+            type: 'fish'
+        })
             .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish' }).reply(409);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -395,7 +501,7 @@ module.exports = testCase('simple-crud', {
     'trying to merge entity that no longer exists should give EntityMissingError': function (done) {
         this.nock
             .get('/main/F1').reply(404);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -420,11 +526,11 @@ module.exports = testCase('simple-crud', {
     'removing entity': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: 'F1R1'
-            })
+            _id: 'F1',
+            _rev: 'F1R1'
+        })
             .delete('/main/F1?rev=F1R1').reply(200, {});
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -435,7 +541,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        var that = this;
+        let that = this;
         db.remove('fish', 'F1', function (err) {
             refute(err);
             assert(that.nock.isDone());
@@ -446,11 +552,11 @@ module.exports = testCase('simple-crud', {
     'trying to remove entity that conflicts should give EntityConflictError': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                _rev: 'F1R1'
-            })
+            _id: 'F1',
+            _rev: 'F1R1'
+        })
             .delete('/main/F1?rev=F1R1').reply(409);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -474,7 +580,7 @@ module.exports = testCase('simple-crud', {
 });
 
 function fishChipMapDocToEntity(doc) {
-    var type = doc.type;
+    let type = doc.type;
     if (type === 'fish') return new Fish(doc);
     if (type === 'chip') return new Chip(doc);
 
