@@ -16,12 +16,12 @@
   "dependencies": {
     "agentkeepalive": "*",
     "nano": "^6.1.5",
-    "request": "*",
-    "sinon": "*",
+    "request": "^2.81.0",
+    "sinon": "^1.17.5",
     "smartdb-stdcacheproviders": "*"
   },
   "devDependencies": {
-    "bocha": "^1.0.0",
+    "bocha": "^1.4.5",
     "nock": "0.17.1"
   },
   "scripts": {
