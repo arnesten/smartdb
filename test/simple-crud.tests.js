@@ -436,6 +436,111 @@ module.exports = testCase('simple-crud', {
         });
     },
 
+    'updateWithRetry: can update task': async function () {
+        this.nock.get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1',
+            type: 'fish'
+        });
+        this.nock.put('/main/F1', {
+            _rev: '1',
+            type: 'fish',
+            name: 'Mr White'
+        }).reply(200, { id: 'F1', rev: '2' });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        let updatedFish = await db.updateWithRetry('fish', 'F1', fish => {
+            fish.name = 'Mr White';
+        });
+
+        assert.equals(updatedFish.name, 'Mr White');
+        assert.equals(updatedFish._rev, '2');
+    },
+
+    'updateWithRetry: can return promise in update method': async function () {
+        this.nock.get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1',
+            type: 'fish'
+        });
+        this.nock.put('/main/F1', {
+            _rev: '1',
+            type: 'fish',
+            name: 'Mr White'
+        }).reply(200, { id: 'F1', rev: '2' });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        let updatedFish = await db.updateWithRetry('fish', 'F1', fish => {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    fish.name = 'Mr White';
+                    resolve();
+                }, 10);
+            });
+        });
+
+        assert.equals(updatedFish.name, 'Mr White');
+        assert.equals(updatedFish._rev, '2');
+    },
+
+    'updateWithRetry: when first attempt fails should retry': async function () {
+        this.nock.get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1',
+            type: 'fish'
+        });
+        this.nock.put('/main/F1', {
+            _rev: '1',
+            type: 'fish',
+            name: 'Mr White'
+        }).reply(500);
+        this.nock.get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '2',
+            type: 'fish'
+        });
+        this.nock.put('/main/F1', {
+            _rev: '2',
+            type: 'fish',
+            name: 'Mr White'
+        }).reply(200, { id: 'F1', rev: '3' });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        let updatedFish = await db.updateWithRetry('fish', 'F1', fish => {
+            fish.name = 'Mr White';
+        });
+
+        assert.equals(updatedFish.name, 'Mr White');
+        assert.equals(updatedFish._rev, '3');
+    },
+
     'merging entity': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
