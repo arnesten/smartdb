@@ -1,12 +1,13 @@
-var bocha = require('bocha');
-var sinon = require('sinon');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
+let bocha = require('bocha');
+let sinon = require('sinon');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let smartdb = require('../lib/smartdb.js');
 
 module.exports = testCase('fake', {
     'can fake get()': function (done) {
-        var fakeDb = createFake({
+        let fakeDb = createFake({
             entities: [
                 { _id: 'F1', type: 'fish', name: 'Shark' }
             ]
@@ -19,7 +20,7 @@ module.exports = testCase('fake', {
         });
     },
     'get() without callback returns promise': function () {
-        var fakeDb = createFake({
+        let fakeDb = createFake({
             entities: [
                 { _id: 'F1', type: 'fish', name: 'Shark' }
             ]
@@ -30,7 +31,7 @@ module.exports = testCase('fake', {
         });
     },
 	'get() works in async mode': function (done) {
-		var fakeDb = createFake({
+		let fakeDb = createFake({
 			async: true,
 			entities: [
 				{ _id: 'F1', type: 'fish', name: 'Shark' }
@@ -44,7 +45,7 @@ module.exports = testCase('fake', {
 		});
 	},
     'get() with async mode and without callback returns promise': function () {
-        var fakeDb = createFake({
+        let fakeDb = createFake({
             async: true,
             entities: [
                 { _id: 'F1', type: 'fish', name: 'Shark' }
@@ -56,14 +57,14 @@ module.exports = testCase('fake', {
         });
     },
 	'can force async mode': function () {
-		var fish1 = { _id: 'F1', type: 'fish', name: 'Shark' };
-		var fish2 = { _id: 'F2', type: 'fish', name: 'Shark' };
-		var fakeDb = createFake({
+		let fish1 = { _id: 'F1', type: 'fish', name: 'Shark' };
+		let fish2 = { _id: 'F2', type: 'fish', name: 'Shark' };
+		let fakeDb = createFake({
 			async: true,
 			entities: [fish1, fish2]
 		});
 
-		var stub = sinon.stub();
+		let stub = sinon.stub();
 
 		fakeDb.get('fish', 'F1', stub);
 		fakeDb.getOrNull('fish', 'F1', stub);
@@ -76,9 +77,20 @@ module.exports = testCase('fake', {
 		fakeDb.viewValue('fish', 'inTheSea', { }, stub);
 
 		refute.called(stub);
-	}
+	},
+    'updateWithRetry() can update entity': async function () {
+        let fakeDb = createFake({
+            entities: [{ _id: 'F1', type: 'fish' }]
+        });
+
+        let fish = await fakeDb.updateWithRetry('fish', 'F1', fish => {
+            fish.name = 'Shark';
+        });
+
+        assert.equals(fish, { _id: 'F1', type: 'fish', name: 'Shark' });
+    }
 });
 
 function createFake(options) {
-    return require('../lib/smartdb.js').fake(options);
+    return smartdb.fake(options);
 }

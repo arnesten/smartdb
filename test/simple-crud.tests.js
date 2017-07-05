@@ -1,4 +1,3 @@
-'use strict';
 let bocha = require('bocha');
 let sinon = require('sinon');
 let testCase = bocha.testCase;
