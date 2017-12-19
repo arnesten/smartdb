@@ -21,7 +21,7 @@
     "smartdb-stdcacheproviders": "*"
   },
   "devDependencies": {
-    "bocha": "^1.4.5",
+    "bocha": "^1.5.4",
     "nock": "0.17.1"
   },
   "scripts": {
