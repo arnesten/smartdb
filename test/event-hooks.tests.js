@@ -1,15 +1,15 @@
-var bocha = require('bocha');
-var sinon = require('sinon');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let sinon = require('sinon');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('event-hooks', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'preInsert: can manipulate doc before merge': function (done) {
@@ -25,7 +25,7 @@ module.exports = testCase('event-hooks', {
                 prop1: 'a',
                 prop2: 'b'
             }).reply(200, { rev: 'F2R' });
-        var preInsertStub = sinon.spy(function (event, callback) {
+        let preInsertStub = sinon.spy(function (event, callback) {
             assert.equals(event.doc, {
                 _rev: 'F1R',
                 prop1: 'a',
@@ -43,7 +43,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -57,7 +57,7 @@ module.exports = testCase('event-hooks', {
             ]
         });
 
-        var that = this;
+        let that = this;
         db.merge('fish', 'F1', { prop1: 'a' }, function (err, res) {
             refute(err);
             assert.equals(res, { rev: 'F2R' });
@@ -73,7 +73,7 @@ module.exports = testCase('event-hooks', {
                 prop1: 'a',
                 prop2: 'b'
             }).reply(200, { id: 'F1', rev: 'F2R' });
-        var preInsertStub = sinon.spy(function (event, callback) {
+        let preInsertStub = sinon.spy(function (event, callback) {
             assert.equals(event.doc, {
                 prop1: 'a',
                 type: 'fish'
@@ -91,7 +91,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -105,8 +105,8 @@ module.exports = testCase('event-hooks', {
             ]
         });
 
-        var that = this;
-        var entity = { type: 'fish', prop1: 'a' };
+        let that = this;
+        let entity = { type: 'fish', prop1: 'a' };
         db.save(entity, function (err) {
             refute(err);
             assert.equals(entity._id, 'F1');
@@ -124,7 +124,7 @@ module.exports = testCase('event-hooks', {
                 prop2: 'b',
                 type: 'fish'
             }).reply(200, { id: 'F1', rev: 'F2R' });
-        var preInsertStub = sinon.spy(function (event, callback) {
+        let preInsertStub = sinon.spy(function (event, callback) {
             assert.equals(event.doc, {
                 _id: 'F1',
                 _rev: 'F1R',
@@ -146,7 +146,7 @@ module.exports = testCase('event-hooks', {
 
             callback();
         });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -160,8 +160,8 @@ module.exports = testCase('event-hooks', {
             ]
         });
 
-        var that = this;
-        var entity = { _id: 'F1', _rev: 'F1R', type: 'fish', prop1: 'a' };
+        let that = this;
+        let entity = { _id: 'F1', _rev: 'F1R', type: 'fish', prop1: 'a' };
         db.update(entity, function (err) {
             refute(err);
             assert.equals(entity._rev, 'F2R');

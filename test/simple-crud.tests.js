@@ -6,10 +6,10 @@ let refute = bocha.refute;
 let nock = require('nock');
 
 module.exports = testCase('simple-crud', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'get: entity that exists': function (done) {

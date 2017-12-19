@@ -1,19 +1,19 @@
-var bocha = require('bocha');
-var sinon = require('sinon');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let sinon = require('sinon');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('cache-provider', {
-	setUp: function () {
+	setUp() {
 		this.nock = nock('http://myserver.com');
 	},
-	tearDown: function () {
+	tearDown() {
 		nock.cleanAll();
 	},
 	'can use provider to get cached item': function (done) {
-		var db = createDb({
+		let db = createDb({
 			databases: [
 				{
 					url: 'http://myserver.com/animals',
@@ -49,8 +49,8 @@ module.exports = testCase('cache-provider', {
 			.put('/animals/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
 				rev: 'F1R2'
 			});
-		var cacheDel = sinon.stub().callsArg(1);
-		var db = createDb({
+		let cacheDel = sinon.stub().callsArg(1);
+		let db = createDb({
 			databases: [
 				{
 					url: 'http://myserver.com/animals',
@@ -67,7 +67,7 @@ module.exports = testCase('cache-provider', {
 				}
 			}
 		});
-		var entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
+		let entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
 		db.update(entity, function (err) {
 			refute(err);
 			assert.calledOnce(cacheDel);

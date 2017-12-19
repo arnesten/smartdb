@@ -1,20 +1,20 @@
-var bocha = require('bocha');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('views', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'list: without rewrite': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?group=true').reply(200, '<b>Shark</b>');
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -35,7 +35,7 @@ module.exports = testCase('views', {
     'list: with keys array': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?keys=%5B%221%22%2C2%5D').reply(200, '<b>Shark</b>');
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',

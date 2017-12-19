@@ -1,4 +1,4 @@
-var bocha = require('bocha');
+let bocha = require('bocha');
 
 bocha.runOnce(__dirname, {
     fileSuffix: '.tests.js'

@@ -1,19 +1,19 @@
-var bocha = require('bocha');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var nock = require('nock');
+let bocha = require('bocha');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let nock = require('nock');
 
 module.exports = testCase('auth', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'get: when giving auth and error appears, should NOT show authentication info': function (done) {
         this.nock
             .get('/animals/F1').reply(500);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',
@@ -33,7 +33,7 @@ module.exports = testCase('auth', {
     'list: when giving auth and error appears, should NOT show authentication info': function (done) {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView').reply(500);
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',

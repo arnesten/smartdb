@@ -1,14 +1,14 @@
-var bocha = require('bocha');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('validation', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'save: with invalid entity': function (done) {
@@ -17,7 +17,7 @@ module.exports = testCase('validation', {
                 id: 'C1',
                 rev: 'C1R'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -31,7 +31,7 @@ module.exports = testCase('validation', {
                 callback(new Error('Invalid'));
             }
         });
-        var fish = new Fish({ name: 'Shark' });
+        let fish = new Fish({ name: 'Shark' });
 
         db.save(fish, function (err) {
             assert.equals(err, new Error('Invalid'));
@@ -45,7 +45,7 @@ module.exports = testCase('validation', {
                 id: 'C1',
                 rev: 'C1R'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -59,7 +59,7 @@ module.exports = testCase('validation', {
                 callback();
             }
         });
-        var fish = new Fish({ name: 'Shark' });
+        let fish = new Fish({ name: 'Shark' });
 
         db.save(fish, function (err) {
             refute(err);
@@ -73,7 +73,7 @@ module.exports = testCase('validation', {
                 _id: 'F1',
                 type: 'fish'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',

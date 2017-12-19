@@ -1,14 +1,14 @@
-var bocha = require('bocha');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('views', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'view: without specified rewrite': function (done) {
@@ -18,7 +18,7 @@ module.exports = testCase('views', {
                     { doc: { _id: 'F1', name: 'Great white' } }
                 ]
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -54,7 +54,7 @@ module.exports = testCase('views', {
 					{ doc: { _id: 'F2', name: 'Small blue' } },
 				]
 			});
-		var db = createDb({
+		let db = createDb({
 			databases: [
 				{
 					url: 'http://myserver.com/animals',
@@ -93,7 +93,7 @@ module.exports = testCase('views', {
                     { doc: { _id: 'F1', name: 'Great white' } }
                 ]
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -128,7 +128,7 @@ module.exports = testCase('views', {
             .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(404, {
                 error: 'not_found'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -152,7 +152,7 @@ module.exports = testCase('views', {
                     { value: 2 }
                 ]
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -177,7 +177,7 @@ module.exports = testCase('views', {
                     { value: 2, key: 'Bass' }
                 ]
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',

@@ -1,15 +1,15 @@
-var bocha = require('bocha');
-var sinon = require('sinon');
-var testCase = bocha.testCase;
-var assert = bocha.assert;
-var refute = bocha.refute;
-var nock = require('nock');
+let bocha = require('bocha');
+let sinon = require('sinon');
+let testCase = bocha.testCase;
+let assert = bocha.assert;
+let refute = bocha.refute;
+let nock = require('nock');
 
 module.exports = testCase('cache', {
-    setUp: function () {
+    setUp() {
         this.nock = nock('http://myserver.com');
     },
-    tearDown: function () {
+    tearDown() {
         nock.cleanAll();
     },
     'getting entity twice with cacheMaxSize set, should get from cache': function (done) {
@@ -22,7 +22,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -58,7 +58,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -96,7 +96,7 @@ module.exports = testCase('cache', {
                 _id: 'F1',
                 _rev: 'F1R2'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -121,11 +121,11 @@ module.exports = testCase('cache', {
         });
     },
     'cacheMaxAge set': {
-        setUp: function () {
+        setUp() {
             this.timeout = 3000;
             this.clock = sinon.useFakeTimers();
         },
-        tearDown: function () {
+        tearDown() {
             this.clock.restore();
         },
         'and getting entity twice within age limit should get from cache': function (done) {
@@ -138,7 +138,7 @@ module.exports = testCase('cache', {
                     _id: 'F1',
                     _rev: 'F1R2'
                 });
-            var db = createDb({
+            let db = createDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -151,7 +151,7 @@ module.exports = testCase('cache', {
                 ]
             });
 
-            var that = this;
+            let that = this;
             db.get('fish', 'F1', function (err, fish) {
                 assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
@@ -173,7 +173,7 @@ module.exports = testCase('cache', {
                     _id: 'F1',
                     _rev: 'F1R2'
                 });
-            var db = createDb({
+            let db = createDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -186,7 +186,7 @@ module.exports = testCase('cache', {
                 ]
             });
 
-            var that = this;
+            let that = this;
             db.get('fish', 'F1', function (err, fish) {
                 assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
 
@@ -215,7 +215,7 @@ module.exports = testCase('cache', {
                 _rev: 'F1R3',
                 type: 'fish'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -256,7 +256,7 @@ module.exports = testCase('cache', {
                 name: 'Sharky',
                 type: 'fish'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -293,7 +293,7 @@ module.exports = testCase('cache', {
                 _rev: 'F1R2',
                 type: 'fish'
             });
-        var db = createDb({
+        let db = createDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
