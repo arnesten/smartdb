@@ -25,13 +25,13 @@ module.exports = testCase('cache-provider', {
 				}
 			],
 			cacheProvider: {
-				create: function (entityType, settings) {
+				create(entityType, settings) {
 					assert.equals(entityType, 'fish');
 					assert.equals(settings, { cacheMaxSize: 1 });
 					return {
-						get: function (id, cb) {
+						get(id) {
 							assert.equals(id, 'F1');
-							cb(null, { name: 'Shark', type: 'fish' });
+							return Promise.resolve({ name: 'Shark', type: 'fish' });
 						}
 					};
 				}
@@ -49,7 +49,7 @@ module.exports = testCase('cache-provider', {
 			.put('/animals/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
 				rev: 'F1R2'
 			});
-		let cacheDel = sinon.stub().callsArg(1);
+		let cacheDel = sinon.spy(() => Promise.resolve());
 		let db = createDb({
 			databases: [
 				{
@@ -60,7 +60,7 @@ module.exports = testCase('cache-provider', {
 				}
 			],
 			cacheProvider: {
-				create: function () {
+				create() {
 					return {
 						del: cacheDel
 					};

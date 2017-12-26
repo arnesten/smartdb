@@ -26,9 +26,9 @@ module.exports = testCase('validation', {
                     }
                 }
             ],
-            validate: function (entity, callback) {
+            validate(entity) {
                 assert.equals(entity, new Fish({ name: 'Shark' }));
-                callback(new Error('Invalid'));
+                return Promise.reject(new Error('Invalid'));
             }
         });
         let fish = new Fish({ name: 'Shark' });
@@ -54,9 +54,9 @@ module.exports = testCase('validation', {
                     }
                 }
             ],
-            validate: function (entity, callback) {
+            validate(entity) {
                 assert.equals(entity, new Fish({ name: 'Shark' }));
-                callback();
+                return Promise.resolve();
             }
         });
         let fish = new Fish({ name: 'Shark' });
@@ -82,9 +82,9 @@ module.exports = testCase('validation', {
                     }
                 }
             ],
-            validate: function (entity, callback) {
+            validate(entity,) {
                 assert.equals(entity, { _id: 'F1', type: 'fish', change: true });
-                callback(new Error('ValidationError'));
+                return Promise.reject(new Error('ValidationError'));
             }
         });
 
