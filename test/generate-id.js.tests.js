@@ -11,7 +11,7 @@ module.exports = testCase('generate-id', {
     tearDown() {
         nock.cleanAll();
     },
-    'can generate id on save': async function () {
+    'can generate ID on save': async function () {
         this.nock.put('/main/S1A', { name: 'Shark', type: 'fish' }).reply(200, {
             id: 'S1A',
             rev: 'S1B'
@@ -38,6 +38,38 @@ module.exports = testCase('generate-id', {
         assert.equals(fish, {
             _id: 'S1A',
             _rev: 'S1B',
+            name: 'Shark',
+            type: 'fish'
+        });
+    },
+    'when conflict happens after generating ID on save should try with new ID': async function () {
+        this.nock
+            .put('/main/S1A', { name: 'Shark', type: 'fish' }).reply(409, {})
+            .put('/main/S2A', { name: 'Shark', type: 'fish' }).reply(200, { id: 'S2A', rev: 'S2B' });
+        let callCount = 0;
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            generateId(doc) {
+                callCount++;
+                assert.equals(doc, { name: 'Shark', type: 'fish' });
+                return Promise.resolve(`S${callCount}A`);
+            }
+        });
+
+        let fish = { name: 'Shark', type: 'fish' };
+
+        await db.save(fish);
+
+        assert.equals(fish, {
+            _id: 'S2A',
+            _rev: 'S2B',
             name: 'Shark',
             type: 'fish'
         });
