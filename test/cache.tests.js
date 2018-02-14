@@ -133,10 +133,10 @@ module.exports = testCase('cache', {
             assert.equals(fish2, { _id: 'F1', _rev: 'F1R2' });
         }
     },
-    'updating task should clear it from cache': async function () {
+    'updating task should update cache': async function () {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
-            .put('/animals/F1', { _rev: 'F1R1', type: 'fish' }).reply(200, { _id: 'F1', _rev: 'F1R2' })
+            .put('/animals/F1', { _rev: 'F1R1', type: 'fish' }).reply(200, { id: 'F1', rev: 'F1R2' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R3', type: 'fish' });
         let db = createDb({
             databases: [
@@ -153,13 +153,12 @@ module.exports = testCase('cache', {
         await db.update(fish);
 
         let fish2 = await db.get('fish', 'F1');
-        assert.equals(fish2, { _id: 'F1', _rev: 'F1R3', type: 'fish' });
+        assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
     },
-    'merging task should clear it from cache': async function () {
+    'merging task should update cache': async function () {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
-            .put('/animals/F1', { _rev: 'F1R1', type: 'fish', name: 'Sharky' }).reply(200, { _id: 'F1', _rev: 'F1R2' })
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R3', name: 'Sharky', type: 'fish' });
+            .put('/animals/F1', { _rev: 'F1R1', type: 'fish', name: 'Sharky' }).reply(200, { id: 'F1', rev: 'F1R2' });
         let db = createDb({
             databases: [
                 {
@@ -175,7 +174,7 @@ module.exports = testCase('cache', {
         await db.merge('fish', 'F1', { name: 'Sharky' });
 
         let fish2 = await db.get('fish', 'F1');
-        assert.equals(fish2, { _id: 'F1', _rev: 'F1R3', type: 'fish', name: 'Sharky' });
+        assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish', name: 'Sharky' });
     },
     'removing task should clear it from cache': async function () {
         this.nock

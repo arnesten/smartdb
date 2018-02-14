@@ -44,7 +44,7 @@ module.exports = testCase('cache-provider', {
 			done();
 		});
 	},
-	'should delete from cache when update': function (done) {
+	'should delete from cache when update': async function () {
 		this.nock
 			.put('/animals/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
 				rev: 'F1R2'
@@ -62,19 +62,17 @@ module.exports = testCase('cache-provider', {
 			cacheProvider: {
 				create() {
 					return {
+					    set: () => Promise.resolve(),
 						del: cacheDel
 					};
 				}
 			}
 		});
 		let entity = { _id: 'F1', _rev: 'F1R1', name: 'Shark', type: 'fish' };
-		db.update(entity, function (err) {
-			refute(err);
-			assert.calledOnce(cacheDel);
-			assert.calledWith(cacheDel, 'F1');
-			assert.equals(entity._rev, 'F1R2');
-			done();
-		});
+		await db.update(entity);
+        assert.calledOnce(cacheDel);
+        assert.calledWith(cacheDel, 'F1');
+        assert.equals(entity._rev, 'F1R2');
 	}
 });
 
