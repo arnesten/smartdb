@@ -540,6 +540,31 @@ module.exports = testCase('simple-crud', {
         assert.equals(updatedFish._rev, '3');
     },
 
+    'updateWithRetry: when return false in update method should NOT make PUT call': async function () {
+        this.nock.get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1',
+            type: 'fish'
+        });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        let updatedFish = await db.updateWithRetry('fish', 'F1', () => {
+            return false;
+        });
+
+        assert.equals(updatedFish._id, 'F1');
+        assert.equals(updatedFish._rev, '1');
+    },
+
     'merging entity': function (done) {
         this.nock
             .get('/main/F1').reply(200, {
