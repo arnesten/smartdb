@@ -14,8 +14,8 @@ module.exports = testCase('cache', {
     },
     'getting entity twice with cacheMaxSize set, should get from cache': async function () {
         this.nock
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1' })
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2' });
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
         let db = createDb({
             databases: [
                 {
@@ -28,16 +28,16 @@ module.exports = testCase('cache', {
         });
 
         let fish1 = await db.get('fish', 'F1');
-        assert.equals(fish1, { _id: 'F1', _rev: 'F1R1' });
+        assert.equals(fish1, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
 
         let fish2 = await db.get('fish', 'F1');
-        assert.equals(fish2, { _id: 'F1', _rev: 'F1R1' });
+        assert.equals(fish2, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
     },
 
     'getting entity twice without cache set, should NOT get from cache': async function () {
         this.nock
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1' })
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2' });
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
         let db = createDb({
             databases: [
                 {
@@ -50,17 +50,17 @@ module.exports = testCase('cache', {
         });
 
         let fish = await db.get('fish', 'F1');
-        assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
+        assert.equals(fish, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
 
         let fish2 = await db.get('fish', 'F1');
-        assert.equals(fish2, { _id: 'F1', _rev: 'F1R2' });
+        assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
     },
 
     'getting first cached entity after cache size exceeded, should NOT get from cache': async function () {
         this.nock
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1' })
-            .get('/animals/F2').reply(200, { _id: 'F2', _rev: 'F2R1' })
-            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2' });
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+            .get('/animals/F2').reply(200, { _id: 'F2', _rev: 'F2R1', type: 'fish' })
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
         let db = createDb({
             databases: [
                 {
@@ -73,11 +73,11 @@ module.exports = testCase('cache', {
         });
 
         let fish1 = await db.get('fish', 'F1');
-        assert.equals(fish1, { _id: 'F1', _rev: 'F1R1' });
+        assert.equals(fish1, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
         let fish2 = await db.get('fish', 'F2');
-        assert.equals(fish2, { _id: 'F2', _rev: 'F2R1' });
+        assert.equals(fish2, { _id: 'F2', _rev: 'F2R1', type: 'fish' });
         let fish3 = await db.get('fish', 'F1');
-        assert.equals(fish3, { _id: 'F1', _rev: 'F1R2' });
+        assert.equals(fish3, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
     },
     'cacheMaxAge set': {
         setUp() {
@@ -88,8 +88,8 @@ module.exports = testCase('cache', {
         },
         'and getting entity twice within age limit should get from cache': async function () {
             this.nock
-                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1' })
-                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2' });
+                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
             let db = createDb({
                 databases: [
                     {
@@ -102,17 +102,17 @@ module.exports = testCase('cache', {
             });
 
             let fish = await db.get('fish', 'F1');
-            assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
+            assert.equals(fish, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
 
             this.clock.tick(1999);
 
             let fish2 = await db.get('fish', 'F1');
-            assert.equals(fish2, { _id: 'F1', _rev: 'F1R1' });
+            assert.equals(fish2, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
         },
         'and getting entity twice outside age limit should NOT get from cache': async function () {
             this.nock
-                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1' })
-                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2' });
+                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+                .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
             let db = createDb({
                 databases: [
                     {
@@ -125,12 +125,12 @@ module.exports = testCase('cache', {
             });
 
             let fish = await db.get('fish', 'F1');
-            assert.equals(fish, { _id: 'F1', _rev: 'F1R1' });
+            assert.equals(fish, { _id: 'F1', _rev: 'F1R1', type: 'fish' });
 
             this.clock.tick(2001);
 
             let fish2 = await db.get('fish', 'F1');
-            assert.equals(fish2, { _id: 'F1', _rev: 'F1R2' });
+            assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
         }
     },
     'updating task should update cache': async function () {

@@ -29,14 +29,43 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
-        db.get('fish', 'F1', function (err, fish) {
+        db.get('fish', 'F1', (err, fish) => {
             refute(err);
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
             assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
+            done();
+        });
+    },
+
+    'get: entity of other type exists': function (done) {
+        this.nock
+            .get('/main/X').reply(200, {
+            _id: 'X',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {},
+                        chip: {}
+                    }
+                }
+            ],
+            mapDocToEntity
+        });
+
+        db.get('chip', 'X', (err, chip) => {
+            assert.equals(err.message, 'Entity is missing');
+            refute(chip);
+
             done();
         });
     },
@@ -58,7 +87,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
         return db.get('fish', 'F1').then(fish => {
@@ -124,7 +153,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
         db.get('fish', 'F1', function (err) {
@@ -150,7 +179,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
         db.getOrNull('fish', 'F1', function (err, fish) {
@@ -158,6 +187,34 @@ module.exports = testCase('simple-crud', {
             assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
             assert.equals(fish.constructor, Fish);
             assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
+            done();
+        });
+    },
+
+    'getOrNull: entity of other type exists': function (done) {
+        this.nock
+            .get('/main/F1').reply(200, {
+            _id: 'F1',
+            _rev: '1-2',
+            type: 'fish'
+        });
+        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {},
+                        chip: {}
+                    }
+                }
+            ],
+            mapDocToEntity
+        });
+
+        db.getOrNull('chip', 'F1', (err, chip) => {
+            refute(err);
+            assert.equals(chip, null);
             done();
         });
     },
@@ -179,7 +236,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
         return db.getOrNull('fish', 'F1').then(fish => {
@@ -205,7 +262,7 @@ module.exports = testCase('simple-crud', {
                     }
                 }
             ],
-            mapDocToEntity: mapDocToEntity
+            mapDocToEntity
         });
 
         db.getOrNull('fish', 'F1', function (err, fish) {
@@ -654,10 +711,7 @@ module.exports = testCase('simple-crud', {
 
     'removing entity': function (done) {
         this.nock
-            .get('/main/F1').reply(200, {
-            _id: 'F1',
-            _rev: 'F1R1'
-        })
+            .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(200, {});
         let db = createDb({
             databases: [
@@ -680,10 +734,7 @@ module.exports = testCase('simple-crud', {
 
     'trying to remove entity that conflicts should give EntityConflictError': function (done) {
         this.nock
-            .get('/main/F1').reply(200, {
-            _id: 'F1',
-            _rev: 'F1R1'
-        })
+            .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(409);
         let db = createDb({
             databases: [
