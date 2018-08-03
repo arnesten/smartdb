@@ -197,6 +197,27 @@ module.exports = testCase('cache', {
 
         let fish2 = await db.get('fish', 'F1');
         assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
+    },
+    'removeCacheOnly will only remove from cache and not send DELETE': async function () {
+        this.nock
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
+            .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: { cacheMaxSize: 10 }
+                    }
+                }
+            ]
+        });
+        await db.get('fish', 'F1');
+
+        await db.removeCacheOnly('fish', 'F1');
+
+        let fish2 = await db.get('fish', 'F1');
+        assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
     }
 });
 
