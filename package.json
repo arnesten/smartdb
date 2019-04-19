@@ -15,7 +15,7 @@
   "main": "./lib/smartdb.js",
   "dependencies": {
     "nano": "^8.0.1",
-    "request": "^2.81.0",
+    "request": "^2.88.0",
     "sinon": "5.0.10",
     "smartdb-stdcacheproviders": "^5.0.0"
   },
