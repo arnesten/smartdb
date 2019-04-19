@@ -11,13 +11,13 @@ module.exports = testCase('views', {
     tearDown() {
         nock.cleanAll();
     },
-    'view: without specified rewrite': function (done) {
+    'view: without specified rewrite': async function () {
         this.nock
             .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(200, {
-                rows: [
-                    { doc: { _id: 'F1', name: 'Great white' } }
-                ]
-            });
+            rows: [
+                { doc: { _id: 'F1', name: 'Great white' } }
+            ]
+        });
         let db = createDb({
             databases: [
                 {
@@ -34,65 +34,61 @@ module.exports = testCase('views', {
             }
         });
 
-        db.view('fish', 'getSharks', { }, function (err, sharks) {
-            refute(err);
-            assert.equals(sharks, [
-                new Fish({
-                    _id: 'F1',
-                    name: 'Great white'
-                })
-            ]);
-            done();
-        });
+        let sharks = await db.view('fish', 'getSharks', {});
+
+        assert.equals(sharks, [
+            new Fish({
+                _id: 'F1',
+                name: 'Great white'
+            })
+        ]);
     },
-	'view: where one of the docs are not set, should ignore': function (done) {
-		this.nock
-			.get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(200, {
-				rows: [
-					{ doc: { _id: 'F1', name: 'Great white' } },
-					{ },
-					{ doc: { _id: 'F2', name: 'Small blue' } },
-				]
-			});
-		let db = createDb({
-			databases: [
-				{
-					url: 'http://myserver.com/animals',
-					entities: {
-						fish: {}
-					}
-				}
-			],
-			getEntityCreator: function () {
-				return function (doc) {
-					return new Fish(doc);
-				}
-			}
-		});
+    'view: where one of the docs are not set, should ignore': async function () {
+        this.nock
+            .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(200, {
+            rows: [
+                { doc: { _id: 'F1', name: 'Great white' } },
+                {},
+                { doc: { _id: 'F2', name: 'Small blue' } },
+            ]
+        });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ],
+            getEntityCreator: function () {
+                return function (doc) {
+                    return new Fish(doc);
+                }
+            }
+        });
 
-		db.view('fish', 'getSharks', { }, function (err, sharks) {
-			refute(err);
-			assert.equals(sharks, [
-				new Fish({
-					_id: 'F1',
-					name: 'Great white'
-				}),
-				new Fish({
-					_id: 'F2',
-					name: 'Small blue'
-				})
-			]);
-			done();
-		});
-	},
+        let sharks = await db.view('fish', 'getSharks', {});
 
-    'view: with specified rewrite': function (done) {
+        assert.equals(sharks, [
+            new Fish({
+                _id: 'F1',
+                name: 'Great white'
+            }),
+            new Fish({
+                _id: 'F2',
+                name: 'Small blue'
+            })
+        ]);
+    },
+
+    'view: with specified rewrite': async function () {
         this.nock
             .get('/animals/_design/fish-getSharks/_view/fn?include_docs=true').reply(200, {
-                rows: [
-                    { doc: { _id: 'F1', name: 'Great white' } }
-                ]
-            });
+            rows: [
+                { doc: { _id: 'F1', name: 'Great white' } }
+            ]
+        });
         let db = createDb({
             databases: [
                 {
@@ -112,22 +108,20 @@ module.exports = testCase('views', {
             }
         });
 
-        db.view('fish', 'getSharks', { }, function (err, sharks) {
-            refute(err);
-            assert.equals(sharks, [
-                new Fish({
-                    _id: 'F1',
-                    name: 'Great white'
-                })
-            ]);
-            done();
-        });
+        let sharks = await db.view('fish', 'getSharks', {});
+
+        assert.equals(sharks, [
+            new Fish({
+                _id: 'F1',
+                name: 'Great white'
+            })
+        ]);
     },
-    'view: requesting view that does NOT exist': function (done) {
+    'view: requesting view that does NOT exist': async function () {
         this.nock
             .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(404, {
-                error: 'not_found'
-            });
+            error: 'not_found'
+        });
         let db = createDb({
             databases: [
                 {
@@ -139,19 +133,18 @@ module.exports = testCase('views', {
             ]
         });
 
-        db.view('fish', 'getSharks', { }, function (err) {
-            assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
-            done();
-        });
+        let err = await catchError(() => db.view('fish', 'getSharks', {}));
+
+        assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
     },
-    'viewValue': function (done) {
+    'viewValue': async function () {
         this.nock
             .get('/animals/_design/fish/_view/countBones').reply(200, {
-                rows: [
-                    { value: 1 },
-                    { value: 2 }
-                ]
-            });
+            rows: [
+                { value: 1 },
+                { value: 2 }
+            ]
+        });
         let db = createDb({
             databases: [
                 {
@@ -163,39 +156,35 @@ module.exports = testCase('views', {
             ]
         });
 
-        db.viewValue('fish', 'countBones', { }, function (err, values) {
-            refute(err);
-            assert.equals(values, [1, 2]);
-            done();
-        });
+        let values = await db.viewValue('fish', 'countBones', {});
+
+        assert.equals(values, [1, 2]);
     },
-    'viewRaw': function (done) {
+    'viewRaw': async function () {
         this.nock
             .get('/animals/_design/fish/_view/countBones').reply(200, {
-                rows: [
-                    { value: 1, key: 'Shark' },
-                    { value: 2, key: 'Bass' }
-                ]
-            });
-        let db = createDb({
-            databases: [
-                {
-                    url: 'http://myserver.com/animals',
-                    entities: {
-                        fish: {}
-                    }
-                }
-            ]
-        });
-
-        db.viewRaw('fish', 'countBones', { }, function (err, values) {
-            refute(err);
-            assert.equals(values, [
+            rows: [
                 { value: 1, key: 'Shark' },
                 { value: 2, key: 'Bass' }
-            ]);
-            done();
+            ]
         });
+        let db = createDb({
+            databases: [
+                {
+                    url: 'http://myserver.com/animals',
+                    entities: {
+                        fish: {}
+                    }
+                }
+            ]
+        });
+
+        let values = await db.viewRaw('fish', 'countBones', {});
+
+        assert.equals(values, [
+            { value: 1, key: 'Shark' },
+            { value: 2, key: 'Bass' }
+        ]);
     }
 });
 
@@ -205,4 +194,13 @@ function Fish(doc) {
 
 function createDb(options) {
     return require('../lib/smartdb.js')(options);
+}
+
+async function catchError(fn) {
+    try {
+        await fn();
+    }
+    catch (err) {
+        return err;
+    }
 }

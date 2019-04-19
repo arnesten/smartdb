@@ -11,12 +11,12 @@ module.exports = testCase('validation', {
     tearDown() {
         nock.cleanAll();
     },
-    'save: with invalid entity': function (done) {
+    'save: with invalid entity': async function () {
         this.nock
             .post('/main', { name: 'Shark', type: 'fish' }).reply(200, {
-                id: 'C1',
-                rev: 'C1R'
-            });
+            id: 'C1',
+            rev: 'C1R'
+        });
         let db = createDb({
             databases: [
                 {
@@ -33,18 +33,17 @@ module.exports = testCase('validation', {
         });
         let fish = new Fish({ name: 'Shark' });
 
-        db.save(fish, function (err) {
-            assert.equals(err, new Error('Invalid'));
-            refute(fish._id);
-            done();
-        });
+        let err = await catchError(() => db.save(fish));
+
+        assert.equals(err, new Error('Invalid'));
+        refute(fish._id);
     },
-    'save: with valid entity': function (done) {
+    'save: with valid entity': async function () {
         this.nock
             .post('/main', { name: 'Shark', type: 'fish' }).reply(200, {
-                id: 'C1',
-                rev: 'C1R'
-            });
+            id: 'C1',
+            rev: 'C1R'
+        });
         let db = createDb({
             databases: [
                 {
@@ -61,18 +60,16 @@ module.exports = testCase('validation', {
         });
         let fish = new Fish({ name: 'Shark' });
 
-        db.save(fish, function (err) {
-            refute(err);
-            assert(fish._id);
-            done();
-        });
+        await db.save(fish);
+
+        assert(fish._id);
     },
-    'merge: creating an invalid entity should throw exception': function (done) {
+    'merge: creating an invalid entity should throw exception': async function () {
         this.nock
             .get('/main/F1').reply(200, {
-                _id: 'F1',
-                type: 'fish'
-            });
+            _id: 'F1',
+            type: 'fish'
+        });
         let db = createDb({
             databases: [
                 {
@@ -88,10 +85,9 @@ module.exports = testCase('validation', {
             }
         });
 
-        db.merge('fish', 'F1', { change: true }, function (err) {
-            assert.equals(err, new Error('ValidationError'));
-            done();
-        });
+        let err = await catchError(() => db.merge('fish', 'F1', { change: true }));
+
+        assert.equals(err, new Error('ValidationError'));
     }
 });
 
@@ -102,4 +98,13 @@ function Fish(doc) {
 
 function createDb(options) {
     return require('../lib/smartdb.js')(options);
+}
+
+async function catchError(fn) {
+    try {
+        await fn();
+    }
+    catch (err) {
+        return err;
+    }
 }

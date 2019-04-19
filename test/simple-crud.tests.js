@@ -2,7 +2,6 @@ let bocha = require('bocha');
 let sinon = require('sinon');
 let testCase = bocha.testCase;
 let assert = bocha.assert;
-let refute = bocha.refute;
 let nock = require('nock');
 
 module.exports = testCase('simple-crud', {
@@ -12,7 +11,7 @@ module.exports = testCase('simple-crud', {
     tearDown() {
         nock.cleanAll();
     },
-    'get: entity that exists': function (done) {
+    'get: entity that exists': async function () {
         this.nock
             .get('/main/F1').reply(200, {
             _id: 'F1',
@@ -32,16 +31,14 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.get('fish', 'F1', (err, fish) => {
-            refute(err);
-            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            assert.equals(fish.constructor, Fish);
-            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            done();
-        });
+        let fish = await db.get('fish', 'F1');
+
+        assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
+        assert.equals(fish.constructor, Fish);
+        assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
     },
 
-    'get: entity of other type exists': function (done) {
+    'get: entity of other type exists': async function () {
         this.nock
             .get('/main/X').reply(200, {
             _id: 'X',
@@ -62,42 +59,12 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.get('chip', 'X', (err, chip) => {
-            assert.equals(err.message, 'Entity is missing');
-            refute(chip);
+        let err = await catchError(() => db.get('chip', 'X'));
 
-            done();
-        });
+        assert.equals(err.message, 'Entity is missing');
     },
 
-    'get: without callback returns promise': function () {
-        this.nock
-            .get('/main/F1').reply(200, {
-            _id: 'F1',
-            _rev: '1-2',
-            type: 'fish'
-        });
-        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
-            databases: [
-                {
-                    url: 'http://myserver.com/main',
-                    entities: {
-                        fish: {}
-                    }
-                }
-            ],
-            mapDocToEntity
-        });
-
-        return db.get('fish', 'F1').then(fish => {
-            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            assert.equals(fish.constructor, Fish);
-            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
-        });
-    },
-
-    'get: if type not defined, throw exception': function (done) {
+    'get: if type not defined, throw exception': async function () {
         let db = createDb({
             databases: [
                 {
@@ -109,15 +76,12 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        db.get('chip', 'C1', function (err) {
-            assert(err);
-            assert.equals(err.message, 'Type not defined "chip"');
+        let err = await catchError(() => db.get('chip', 'C1'));
 
-            done();
-        });
+        assert.equals(err.message, 'Type not defined "chip"');
     },
 
-    'get: if ID empty string, throw exception': function (done) {
+    'get: if ID empty string, throw exception': async function () {
         let db = createDb({
             databases: [
                 {
@@ -129,15 +93,12 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        db.get('chip', '', function (err) {
-            assert(err);
-            assert.equals(err.message, 'id required');
+        let err = await catchError(() => db.get('chip', ''));
 
-            done();
-        });
+        assert.equals(err.message, 'id required');
     },
 
-    'get: entity that does NOT exist should give error': function (done) {
+    'get: entity that does NOT exist should give error': async function () {
         this.nock
             .get('/main/F1').reply(404, {
             'error': 'not_found',
@@ -156,13 +117,12 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.get('fish', 'F1', function (err) {
-            assert(err);
-            done();
-        });
+        let err = await catchError(() => db.get('fish', 'F1'));
+
+        assert(err);
     },
 
-    'getOrNull: entity that exists': function (done) {
+    'getOrNull: entity that exists': async function () {
         this.nock
             .get('/main/F1').reply(200, {
             _id: 'F1',
@@ -182,16 +142,14 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.getOrNull('fish', 'F1', function (err, fish) {
-            refute(err);
-            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            assert.equals(fish.constructor, Fish);
-            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            done();
-        });
+        let fish = await db.getOrNull('fish', 'F1');
+
+        assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
+        assert.equals(fish.constructor, Fish);
+        assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
     },
 
-    'getOrNull: entity of other type exists': function (done) {
+    'getOrNull: entity of other type exists': async function () {
         this.nock
             .get('/main/F1').reply(200, {
             _id: 'F1',
@@ -212,41 +170,12 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.getOrNull('chip', 'F1', (err, chip) => {
-            refute(err);
-            assert.equals(chip, null);
-            done();
-        });
+        let chip = await db.getOrNull('chip', 'F1');
+
+        assert.isNull(chip);
     },
 
-    'getOrNull: without callback returns promise': function () {
-        this.nock
-            .get('/main/F1').reply(200, {
-            _id: 'F1',
-            _rev: '1-2',
-            type: 'fish'
-        });
-        let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
-            databases: [
-                {
-                    url: 'http://myserver.com/main',
-                    entities: {
-                        fish: {}
-                    }
-                }
-            ],
-            mapDocToEntity
-        });
-
-        return db.getOrNull('fish', 'F1').then(fish => {
-            assert.equals(fish, { _id: 'F1', _rev: '1-2', type: 'fish' });
-            assert.equals(fish.constructor, Fish);
-            assert.calledWith(mapDocToEntity, { _id: 'F1', _rev: '1-2', type: 'fish' });
-        });
-    },
-
-    'getOrNull: entity that does NOT exists should give null': function (done) {
+    'getOrNull: entity that does NOT exists should give null': async function () {
         this.nock
             .get('/main/F1').reply(404, {
             'error': 'not_found',
@@ -265,14 +194,12 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        db.getOrNull('fish', 'F1', function (err, fish) {
-            refute(err);
-            assert.isNull(fish);
-            done();
-        });
+        let fish = await db.getOrNull('fish', 'F1');
+
+        assert.isNull(fish);
     },
 
-    'having multiple databases defined, should get from correct': function (done) {
+    'having multiple databases defined, should get from correct': async function () {
         this.nock
             .get('/chips/C1').reply(200, {
             _id: 'C1',
@@ -297,14 +224,12 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity: fishChipMapDocToEntity
         });
 
-        db.get('chip', 'C1', function (err, chip) {
-            refute(err);
-            assert.equals(chip, { _id: 'C1', _rev: '1-2', type: 'chip' });
-            done();
-        });
+        let chip = await db.get('chip', 'C1');
+
+        assert.equals(chip, { _id: 'C1', _rev: '1-2', type: 'chip' });
     },
 
-    'saving an entity without specifying ID': function (done) {
+    'saving an entity without specifying ID': async function () {
         this.nock
             .post('/main', { name: 'Estrella', type: 'chip' }).reply(200, {
             id: 'C1',
@@ -322,19 +247,17 @@ module.exports = testCase('simple-crud', {
         });
         let estrella = new Chip({ name: 'Estrella' });
 
-        db.save(estrella, function (err) {
-            refute(err);
-            assert.equals(estrella, {
-                _id: 'C1',
-                _rev: 'C1R',
-                name: 'Estrella',
-                type: 'chip'
-            });
-            done();
+        await db.save(estrella);
+
+        assert.equals(estrella, {
+            _id: 'C1',
+            _rev: 'C1R',
+            name: 'Estrella',
+            type: 'chip'
         });
     },
 
-    'save: without callback returns promise': function () {
+    'save: without callback returns promise': async function () {
         this.nock
             .post('/main', { name: 'Estrella', type: 'chip' }).reply(200, {
             id: 'C1',
@@ -352,17 +275,17 @@ module.exports = testCase('simple-crud', {
         });
         let estrella = new Chip({ name: 'Estrella' });
 
-        return db.save(estrella).then(() => {
-            assert.equals(estrella, {
-                _id: 'C1',
-                _rev: 'C1R',
-                name: 'Estrella',
-                type: 'chip'
-            });
+        await db.save(estrella);
+
+        assert.equals(estrella, {
+            _id: 'C1',
+            _rev: 'C1R',
+            name: 'Estrella',
+            type: 'chip'
         });
     },
 
-    'saving entity with predefined ID': function (done) {
+    'saving entity with predefined ID': async function () {
         this.nock
             .put('/main/F1', { name: 'Bass', type: 'fish' }).reply(200, {
             id: 'F1',
@@ -380,17 +303,15 @@ module.exports = testCase('simple-crud', {
         });
         let bass = new Fish({ _id: 'F1', name: 'Bass' });
 
-        db.save(bass, function (err) {
-            refute(err);
-            assert.match(bass, {
-                _id: 'F1',
-                _rev: 'F1R'
-            });
-            done();
+        await db.save(bass);
+
+        assert.match(bass, {
+            _id: 'F1',
+            _rev: 'F1R'
         });
     },
 
-    'trying to save task with id that conflicts should give EntityConflictError': function (done) {
+    'trying to save task with id that conflicts should give EntityConflictError': async function () {
         this.nock
             .put('/main/F1', { name: 'Shark', type: 'fish' }).reply(409);
         let db = createDb({
@@ -405,20 +326,19 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', name: 'Shark' });
 
-        db.save(shark, err => {
-            assert.equals(err.name, 'EntityConflictError');
-            assert.equals(err.message, 'Conflict when trying to persist entity change');
-            assert.equals(err.scope, 'smartdb');
-            assert.equals(err.entityId, 'F1');
-            assert.equals(err.entityType, 'fish');
-            assert.match(err.request, { method: 'PUT', uri: 'http://myserver.com/main/F1' });
-            assert.match(err.response, { statusCode: 409, headers: { uri: 'http://myserver.com/main/F1' } });
-            assert(this.nock.isDone());
-            done();
-        });
+        let err = await catchError(() => db.save(shark));
+
+        assert.equals(err.name, 'EntityConflictError');
+        assert.equals(err.message, 'Conflict when trying to persist entity change');
+        assert.equals(err.scope, 'smartdb');
+        assert.equals(err.entityId, 'F1');
+        assert.equals(err.entityType, 'fish');
+        assert.match(err.request, { method: 'PUT', uri: 'http://myserver.com/main/F1' });
+        assert.match(err.response, { statusCode: 409, headers: { uri: 'http://myserver.com/main/F1' } });
+        assert(this.nock.isDone());
     },
 
-    'updating entity': function (done) {
+    'updating entity': async function () {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
             id: 'F1',
@@ -436,14 +356,12 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
-        db.update(shark, function (err) {
-            refute(err);
-            assert.equals(shark._rev, 'F1R2');
-            done();
-        });
+        await db.update(shark);
+
+        assert.equals(shark._rev, 'F1R2');
     },
 
-    'update: without callback should return promise': function () {
+    'update: without callback should return promise': async function () {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(200, {
             id: 'F1',
@@ -461,12 +379,12 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
-        return db.update(shark).then(() => {
-            assert.equals(shark._rev, 'F1R2');
-        });
+        await db.update(shark);
+
+        assert.equals(shark._rev, 'F1R2');
     },
 
-    'trying to update entity that conflicts should give EntityConflictError': function (done) {
+    'trying to update entity that conflicts should give EntityConflictError': async function () {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(409);
         let db = createDb({
@@ -481,15 +399,14 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
-        db.update(shark, err => {
-            assert.equals(err.name, 'EntityConflictError');
-            assert.equals(err.entityId, 'F1');
-            assert.equals(err.entityType, 'fish');
-            assert(err.request);
-            assert(err.response);
-            assert(this.nock.isDone());
-            done();
-        });
+        let err = await catchError(() => db.update(shark));
+
+        assert.equals(err.name, 'EntityConflictError');
+        assert.equals(err.entityId, 'F1');
+        assert.equals(err.entityType, 'fish');
+        assert(err.request);
+        assert(err.response);
+        assert(this.nock.isDone());
     },
 
     'updateWithRetry: can update task': async function () {
@@ -622,7 +539,7 @@ module.exports = testCase('simple-crud', {
         assert.equals(updatedFish._rev, '1');
     },
 
-    'merging entity': function (done) {
+    'merging entity': async function () {
         this.nock
             .get('/main/F1').reply(200, {
             _id: 'F1',
@@ -644,16 +561,13 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let that = this;
-        db.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' }, function (err, res) {
-            refute(err);
-            assert(that.nock.isDone());
-            assert.equals(res, { rev: 'F1R2' });
-            done();
-        });
+        let res = await db.merge('fish', 'F1', { name: 'White shark', motto: 'I am bad' });
+
+        assert(this.nock.isDone());
+        assert.equals(res, { rev: 'F1R2' });
     },
 
-    'trying to merge entity that conflicts should give EntityConflictError': function (done) {
+    'trying to merge entity that conflicts should give EntityConflictError': async function () {
         this.nock
             .get('/main/F1').reply(200, {
             _id: 'F1',
@@ -673,18 +587,17 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        db.merge('fish', 'F1', { name: 'White shark' }, err => {
-            assert.equals(err.name, 'EntityConflictError');
-            assert.equals(err.entityId, 'F1');
-            assert.equals(err.entityType, 'fish');
-            assert(err.request);
-            assert(err.response);
-            assert(this.nock.isDone());
-            done();
-        });
+        let err = await catchError(() => db.merge('fish', 'F1', { name: 'White shark' }));
+
+        assert.equals(err.name, 'EntityConflictError');
+        assert.equals(err.entityId, 'F1');
+        assert.equals(err.entityType, 'fish');
+        assert(err.request);
+        assert(err.response);
+        assert(this.nock.isDone());
     },
 
-    'trying to merge entity that no longer exists should give EntityMissingError': function (done) {
+    'trying to merge entity that no longer exists should give EntityMissingError': async function () {
         this.nock
             .get('/main/F1').reply(404);
         let db = createDb({
@@ -698,18 +611,17 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        db.merge('fish', 'F1', { name: 'White shark' }, err => {
-            assert.equals(err.name, 'EntityMissingError');
-            assert.equals(err.entityId, 'F1');
-            assert.equals(err.entityType, 'fish');
-            assert(err.request);
-            assert(err.response);
-            assert(this.nock.isDone());
-            done();
-        });
+        let err = await catchError(() => db.merge('fish', 'F1', { name: 'White shark' }));
+
+        assert.equals(err.name, 'EntityMissingError');
+        assert.equals(err.entityId, 'F1');
+        assert.equals(err.entityType, 'fish');
+        assert(err.request);
+        assert(err.response);
+        assert(this.nock.isDone());
     },
 
-    'removing entity': function (done) {
+    'removing entity': async function () {
         this.nock
             .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(200, {});
@@ -724,15 +636,12 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let that = this;
-        db.remove('fish', 'F1', function (err) {
-            refute(err);
-            assert(that.nock.isDone());
-            done();
-        })
+        await db.remove('fish', 'F1');
+
+        assert(this.nock.isDone());
     },
 
-    'trying to remove entity that conflicts should give EntityConflictError': function (done) {
+    'trying to remove entity that conflicts should give EntityConflictError': async function () {
         this.nock
             .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(409);
@@ -747,15 +656,14 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        db.remove('fish', 'F1', err => {
-            assert.equals(err.name, 'EntityConflictError');
-            assert.equals(err.entityId, 'F1');
-            assert.equals(err.entityType, 'fish');
-            assert(err.request);
-            assert(err.response);
-            assert(this.nock.isDone());
-            done();
-        });
+        let err = await catchError(() => db.remove('fish', 'F1'));
+
+        assert.equals(err.name, 'EntityConflictError');
+        assert.equals(err.entityId, 'F1');
+        assert.equals(err.entityType, 'fish');
+        assert(err.request);
+        assert(err.response);
+        assert(this.nock.isDone());
     }
 });
 
@@ -779,4 +687,13 @@ function Chip(doc) {
 
 function createDb(options) {
     return require('../lib/smartdb.js')(options);
+}
+
+async function catchError(fn) {
+    try {
+        await fn();
+    }
+    catch (err) {
+        return err;
+    }
 }
