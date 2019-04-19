@@ -14,7 +14,6 @@
   "author": "Calle Arnesten <calle.arnesten@codekick.com>",
   "main": "./lib/smartdb.js",
   "dependencies": {
-    "agentkeepalive": "^3.3.0",
     "nano": "^6.1.5",
     "request": "^2.81.0",
     "sinon": "5.0.10",
