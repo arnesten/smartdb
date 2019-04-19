@@ -20,8 +20,8 @@
     "smartdb-stdcacheproviders": "^5.0.0"
   },
   "devDependencies": {
-    "bocha": "1.6.0",
-    "nock": "0.17.1"
+    "bocha": "^1.7.1",
+    "nock": "^10.0.6"
   },
   "scripts": {
     "test": "node test/runAll.js"
