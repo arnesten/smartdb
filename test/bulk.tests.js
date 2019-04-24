@@ -13,12 +13,14 @@ module.exports = testCase('auth', {
     'getBulk': {
         'two entities that exist': async function () {
             this.nock
-                .post('/main/_all_docs?include_docs=true', { keys: ['F1', 'F2'] }).reply(200, {
-                rows: [
-                    { doc: { _id: 'F1', type: 'fish' }},
-                    { doc: { _id: 'F2', type: 'fish' }},
-                ]
-            });
+                .post('/main/_all_docs', ['F1', 'F2'])
+                .query({ include_docs: 'true' })
+                .reply(200, {
+                    rows: [
+                        { doc: { _id: 'F1', type: 'fish' } },
+                        { doc: { _id: 'F2', type: 'fish' } },
+                    ]
+                });
             let db = createDb({
                 databases: [{
                     url: 'http://myserver.com/main',
