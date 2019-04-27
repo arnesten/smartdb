@@ -13,12 +13,12 @@ module.exports = testCase('auth', {
     'getBulk': {
         'two entities that exist': async function () {
             this.nock
-                .post('/main/_all_docs', ['F1', 'F2'])
+                .post('/main/_all_docs', { keys: ['F1', 'F2'] })
                 .query({ include_docs: 'true' })
                 .reply(200, {
                     rows: [
                         { doc: { _id: 'F1', type: 'fish' } },
-                        { doc: { _id: 'F2', type: 'fish' } },
+                        { doc: { _id: 'F2', type: 'fish' } }
                     ]
                 });
             let db = createDb({
@@ -38,6 +38,87 @@ module.exports = testCase('auth', {
             assert.equals(fishes[0].constructor, Fish);
             assert.equals(fishes[1], { _id: 'F2', type: 'fish' });
             assert.equals(fishes[1].constructor, Fish);
+        },
+        'one entity that exists and one that does NOT exist': async function () {
+            this.nock
+                .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+                .query({ include_docs: 'true' })
+                .reply(200, {
+                    rows: [
+                        { doc: { _id: 'F1', type: 'fish' } },
+                        {}
+                    ]
+                });
+            let db = createDb({
+                databases: [{
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }],
+                mapDocToEntity: fishChipMapDocToEntity
+            });
+
+            let error = await catchError(() => db.getBulk('fish', ['F1', 'F2']));
+
+            assert.equals(error.name, 'EntityMissingError');
+            assert.equals(error.entityIds, ['F2']);
+            assert.equals(error.entityType, 'fish');
+        },
+        'two entities that does NOT exist': async function () {
+            this.nock
+                .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+                .query({ include_docs: 'true' })
+                .reply(200, {
+                    rows: [
+                        {},
+                        {}
+                    ]
+                });
+            let db = createDb({
+                databases: [{
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }],
+                mapDocToEntity: fishChipMapDocToEntity
+            });
+
+            let error = await catchError(() => db.getBulk('fish', ['F1', 'F2']));
+
+            assert.equals(error.name, 'EntityMissingError');
+            assert.equals(error.entityIds, ['F1', 'F2']);
+            assert.equals(error.entityType, 'fish');
+        }
+    },
+    'getBulkOrNull': {
+        'one entity that exists and one that does NOT exist': async function () {
+            this.nock
+                .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+                .query({ include_docs: 'true' })
+                .reply(200, {
+                    rows: [
+                        { doc: { _id: 'F1', type: 'fish' } },
+                        {}
+                    ]
+                });
+            let db = createDb({
+                databases: [{
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {}
+                    }
+                }],
+                mapDocToEntity: fishChipMapDocToEntity
+            });
+
+            let fishes = await db.getOrNullBulk('fish', ['F1', 'F2']);
+
+            assert.equals(fishes.length, 2);
+            assert.equals(fishes[0], { _id: 'F1', type: 'fish' });
+            assert.equals(fishes[0].constructor, Fish);
+            assert.equals(fishes[1], null);
         }
     }
 });
