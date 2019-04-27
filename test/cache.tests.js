@@ -218,6 +218,35 @@ module.exports = testCase('cache', {
 
         let fish2 = await db.get('fish', 'F1');
         assert.equals(fish2, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
+    },
+    'getBulk: two items in cache': async function () {
+        this.nock
+            .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+            .query({ include_docs: 'true' })
+            .reply(200, {
+                rows: [
+                    { doc: { _id: 'F1', type: 'fish' } },
+                    { doc: { _id: 'F2', type: 'fish' } }
+                ]
+            })
+            .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+            .query({ include_docs: 'true' })
+            .reply(500);
+        let db = createDb({
+            databases: [{
+                url: 'http://myserver.com/main',
+                entities: {
+                    fish: { cacheMaxSize: 2 }
+                }
+            }]
+        });
+
+        await db.getBulk('fish', ['F1', 'F2']);
+        let fishes = await db.getBulk('fish', ['F1', 'F2']);
+
+        assert.equals(fishes.length, 2);
+        assert.equals(fishes[0], { _id: 'F1', type: 'fish' });
+        assert.equals(fishes[1], { _id: 'F2', type: 'fish' });
     }
 });
 
