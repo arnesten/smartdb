@@ -1,6 +1,6 @@
 {
   "name": "smartdb",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "description": "CouchDB library with advanced entity and cache support",
   "keywords": [
     "couchdb",
