@@ -119,6 +119,34 @@ module.exports = testCase('auth', {
             assert.equals(fishes[0], { _id: 'F1', type: 'fish' });
             assert.equals(fishes[0].constructor, Fish);
             assert.equals(fishes[1], null);
+        },
+        'two entities where one is of wrong type': async function () {
+            this.nock
+                .post('/main/_all_docs', { keys: ['F1', 'F2'] })
+                .query({ include_docs: 'true' })
+                .reply(200, {
+                    rows: [
+                        { doc: { _id: 'F1', type: 'chip' } },
+                        { doc: { _id: 'F2', type: 'fish' }}
+                    ]
+                });
+            let db = createDb({
+                databases: [{
+                    url: 'http://myserver.com/main',
+                    entities: {
+                        fish: {},
+                        chip: {}
+                    }
+                }],
+                mapDocToEntity: fishChipMapDocToEntity
+            });
+
+            let fishes = await db.getOrNullBulk('fish', ['F1', 'F2']);
+
+            assert.equals(fishes.length, 2);
+            assert.equals(fishes[0], null);
+            assert.equals(fishes[1], { _id: 'F2', type: 'fish' });
+            assert.equals(fishes[1].constructor, Fish);
         }
     }
 });
