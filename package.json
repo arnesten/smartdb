@@ -1,6 +1,6 @@
 {
   "name": "smartdb",
-  "version": "6.4.0",
+  "version": "7.0.0",
   "description": "CouchDB library with advanced entity and cache support",
   "keywords": [
     "couchdb",
@@ -19,7 +19,7 @@
     "smartdb-stdcacheproviders": "^6.3.0"
   },
   "devDependencies": {
-    "bocha": "^1.7.1",
+    "bocha": "^1.8.2",
     "nock": "^10.0.6"
   },
   "scripts": {
