@@ -51,7 +51,7 @@ module.exports = testCase('auth', {
 });
 
 function createDb(options) {
-    return require('../lib/smartdb.js')(options);
+    return require('../lib/SmartDb.js')(options);
 }
 
 async function catchError(fn) {

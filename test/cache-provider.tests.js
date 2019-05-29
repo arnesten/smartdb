@@ -77,5 +77,5 @@ module.exports = testCase('cache-provider', {
 });
 
 function createDb(options) {
-    return require('../lib/smartdb.js')(options);
+    return require('../lib/SmartDb.js')(options);
 }

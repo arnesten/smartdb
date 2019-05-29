@@ -12,7 +12,7 @@
     "object document mapper"
   ],
   "author": "Calle Arnesten <calle.arnesten@codekick.com>",
-  "main": "./lib/smartdb.js",
+  "main": "lib/SmartDb.js",
   "dependencies": {
     "nano": "^8.0.1",
     "request": "^2.88.0",

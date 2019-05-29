@@ -50,5 +50,5 @@ module.exports = testCase('views', {
 });
 
 function createDb(options) {
-    return require('../lib/smartdb.js')(options);
+    return require('../lib/SmartDb.js')(options);
 }

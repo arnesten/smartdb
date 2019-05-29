@@ -13,9 +13,9 @@ Features:
 ## Example
 
 ```javascript
-var smartdb = require('smartdb');
+var SmartDb = require('smartdb');
 
-var db = smartdb({
+var db = SmartDb({
     databases: [
         {
             url: 'http://localhost:5984/userdb',
@@ -277,37 +277,6 @@ For `save`, `merge`, `remove` and `update` if you get a conflict, gives the foll
         headers: { ... }
     }
 }
-```
-
-
-## Unit testing
-
-To simplify unit testing while using *smartdb* an intelligent fake has been included.
-
-```javascript
-var fakeDb = require('smartdb').fake;
-
-var db = fakeDb({
-    entities: [
-        new User({ _id: 'U1', name: 'John Doe' })
-    ],
-    views: {
-        'user/byDepartment': function (args) {
-            return [null, [
-                new User({ _id: 'U2', 'John Smith' })
-                ]
-            ];
-        }
-    }
-});
-
-db.get('user', 'U1', function (err, user) {
-   // user will be John Doe 
-});
-
-db.view('user', 'byDepartment', { }, function (err, users) {
-    // users will be an array containing John Smith
-})
 ```
 
 ## License

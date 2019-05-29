@@ -2,7 +2,7 @@ let bocha = require('bocha');
 let testCase = bocha.testCase;
 let assert = bocha.assert;
 let nock = require('nock');
-let SmartDb = require('../lib/smartdb.js');
+let SmartDb = require('../lib/SmartDb.js');
 
 module.exports = testCase('generate-id', {
     setUp() {
