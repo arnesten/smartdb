@@ -1,7 +1,6 @@
 let bocha = require('bocha');
 let testCase = bocha.testCase;
 let assert = bocha.assert;
-let refute = bocha.refute;
 let nock = require('nock');
 
 module.exports = testCase('views', {
@@ -98,7 +97,7 @@ module.exports = testCase('views', {
                     }
                 }
             ],
-            getEntityCreator: function (type) {
+            getEntityCreator: function () {
                 return function (doc) {
                     return new Fish(doc);
                 }
@@ -136,6 +135,20 @@ module.exports = testCase('views', {
         let err = await catchError(() => db.view('fish', 'getSharks', {}));
 
         assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
+    },
+    'view: with key set to "undefined" should throw error': async function () {
+        let db = createDb({
+            databases: [{
+                url: 'http://myserver.com/animals',
+                entities: {
+                    fish: {}
+                }
+            }]
+        });
+
+        let err = await catchError(() => db.view('fish', 'getSharks', { key: undefined }));
+
+        assert.equals(err.message, '"key" should not be set to undefined since that will fetch any documents');
     },
     'viewValue': async function () {
         this.nock
