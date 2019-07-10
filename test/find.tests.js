@@ -11,7 +11,7 @@ module.exports = testCase('find', {
     },
     'can find': async function () {
         this.nock
-            .post('/animals/_find/fish', {
+            .post('/animals/_find', {
                 selector: {
                     name: 'Great white',
                     use_index: 'byName'
@@ -23,19 +23,13 @@ module.exports = testCase('find', {
                 ]
             });
         let db = createDb({
-            databases: [
-                {
-                    url: 'http://myserver.com/animals',
-                    entities: {
-                        fish: {}
-                    }
+            databases: [{
+                url: 'http://myserver.com/animals',
+                entities: {
+                    fish: {}
                 }
-            ],
-            getEntityCreator: function () {
-                return function (doc) {
-                    return new Fish(doc);
-                }
-            }
+            }],
+            mapDocToEntity: doc => new Fish(doc)
         });
 
         let result = await db.find('fish', 'byName', {
