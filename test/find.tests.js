@@ -158,6 +158,36 @@ module.exports = testCase('find', {
         }));
 
         assert.equals(err.message, 'Invalid');
+    },
+    'can set a default find limit': async function () {
+        this.nock
+            .post('/animals/_find', {
+                selector: {
+                    name: 'Great white',
+                },
+                use_index: 'byName',
+                limit: 10000
+            })
+            .reply(200, {
+                docs: [
+                    { _id: 'F1', name: 'Great white' }
+                ]
+            });
+        let db = createDb({
+            defaultFindLimit: 10000,
+            databases: [{
+                url: 'http://myserver.com/animals',
+                entities: {
+                    fish: {}
+                }
+            }]
+        });
+
+        let result = await db.find('fish', 'byName', {
+            name: 'Great white'
+        });
+
+        assert.equals(result, [{ _id: 'F1', name: 'Great white' }]);
     }
 });
 
