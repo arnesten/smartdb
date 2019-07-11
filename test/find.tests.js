@@ -14,8 +14,8 @@ module.exports = testCase('find', {
             .post('/animals/_find', {
                 selector: {
                     name: 'Great white',
-                    use_index: 'byName'
-                }
+                },
+                use_index: 'byName'
             })
             .reply(200, {
                 docs: [
@@ -47,8 +47,8 @@ module.exports = testCase('find', {
             .post('/animals/_find', {
                 selector: {
                     name: 'Great white',
-                    use_index: 'fish_byName'
-                }
+                },
+                use_index: 'fish_byName'
             })
             .reply(200, {
                 docs: [
@@ -78,8 +78,8 @@ module.exports = testCase('find', {
             .post('/animals/_find', {
                 selector: {
                     name: 'Great white',
-                    use_index: 'byName'
                 },
+                use_index: 'byName',
                 foo: 'bar'
             })
             .reply(200, {
