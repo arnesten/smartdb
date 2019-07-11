@@ -9,7 +9,7 @@ module.exports = testCase('find', {
     tearDown() {
         nock.cleanAll();
     },
-    'can find': async function () {
+    'can find with explicit selector': async function () {
         this.nock
             .post('/animals/_find', {
                 selector: {
@@ -36,6 +36,37 @@ module.exports = testCase('find', {
             selector: {
                 name: 'Great white'
             }
+        });
+
+        assert.equals(result.length, 1);
+        assert.equals(result[0], { _id: 'F1', name: 'Great white' });
+        assert.equals(result[0].constructor, Fish);
+    },
+    'can find with implicit selector': async function () {
+        this.nock
+            .post('/animals/_find', {
+                selector: {
+                    name: 'Great white',
+                },
+                use_index: 'byName'
+            })
+            .reply(200, {
+                docs: [
+                    { _id: 'F1', name: 'Great white' }
+                ]
+            });
+        let db = createDb({
+            databases: [{
+                url: 'http://myserver.com/animals',
+                entities: {
+                    fish: {}
+                }
+            }],
+            mapDocToEntity: doc => new Fish(doc)
+        });
+
+        let result = await db.find('fish', 'byName', {
+            name: 'Great white'
         });
 
         assert.equals(result.length, 1);
