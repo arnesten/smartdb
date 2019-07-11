@@ -41,6 +41,38 @@ module.exports = testCase('find', {
         assert.equals(result.length, 1);
         assert.equals(result[0], { _id: 'F1', name: 'Great white' });
         assert.equals(result[0].constructor, Fish);
+    },
+    'can rewrite index name': async function () {
+        this.nock
+            .post('/animals/_find', {
+                selector: {
+                    name: 'Great white',
+                    use_index: 'fish_byName'
+                }
+            })
+            .reply(200, {
+                docs: [
+                    { _id: 'F1', name: 'Great white' }
+                ]
+            });
+        let db = createDb({
+            databases: [{
+                url: 'http://myserver.com/animals',
+                entities: {
+                    fish: {}
+                }
+            }],
+            rewriteIndexName: (type, indexName) => type + '_' + indexName
+        });
+
+        let result = await db.find('fish', 'byName', {
+            selector: {
+                name: 'Great white'
+            }
+        });
+
+        assert.equals(result.length, 1);
+        assert.equals(result[0], { _id: 'F1', name: 'Great white' });
     }
 });
 
