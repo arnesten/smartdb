@@ -125,7 +125,7 @@ module.exports = testCase('find', {
                     fish: {}
                 }
             }],
-            findHook: args => {
+            findHook(type, index, args) {
                 args.foo = 'bar';
             }
         });
@@ -146,7 +146,7 @@ module.exports = testCase('find', {
                     fish: {}
                 }
             }],
-            findHook: () => {
+            findHook() {
                 throw new Error('Invalid');
             }
         });
