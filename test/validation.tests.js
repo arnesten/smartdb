@@ -1,10 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let refute = bocha.refute;
-let nock = require('nock');
+import { assert, refute, testCase, catchErrorAsync } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('validation', {
+export default testCase('validation', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -17,7 +15,7 @@ module.exports = testCase('validation', {
             id: 'C1',
             rev: 'C1R'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -33,7 +31,7 @@ module.exports = testCase('validation', {
         });
         let fish = new Fish({ name: 'Shark' });
 
-        let err = await catchError(() => db.save(fish));
+        let err = await catchErrorAsync(() => db.save(fish));
 
         assert.equals(err, new Error('Invalid'));
         refute(fish._id);
@@ -44,7 +42,7 @@ module.exports = testCase('validation', {
             id: 'C1',
             rev: 'C1R'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -70,7 +68,7 @@ module.exports = testCase('validation', {
             _id: 'F1',
             type: 'fish'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -85,7 +83,7 @@ module.exports = testCase('validation', {
             }
         });
 
-        let err = await catchError(() => db.merge('fish', 'F1', { change: true }));
+        let err = await catchErrorAsync(() => db.merge('fish', 'F1', { change: true }));
 
         assert.equals(err, new Error('ValidationError'));
     }
@@ -94,17 +92,4 @@ module.exports = testCase('validation', {
 function Fish(doc) {
     Object.assign(this, doc);
     this.type = 'fish';
-}
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}
-
-async function catchError(fn) {
-    try {
-        await fn();
-    }
-    catch (err) {
-        return err;
-    }
 }

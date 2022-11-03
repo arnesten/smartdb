@@ -13,9 +13,9 @@ Features:
 ## Example
 
 ```javascript
-var SmartDb = require('smartdb');
+import SmartDb from 'smartdb';
 
-var db = SmartDb({
+let db = SmartDb({
     databases: [
         {
             url: 'http://localhost:5984/userdb',
@@ -32,8 +32,8 @@ var db = SmartDb({
         }
     ],
     // This is optional. It enables you to map from document to entity
-    mapDocToEntity: function (doc) {
-        var type = doc.type;
+    mapDocToEntity(doc) {
+        let type = doc.type;
         if (type === 'user') return new User(doc);
         if (type === 'blogPost') return new BlogPost(doc);
         if (type === 'blogComment') return new BlogComment(doc);
@@ -43,22 +43,16 @@ var db = SmartDb({
 });
 
 // Saving a user
-var johnDoe = new User({
+let johnDoe = new User({
     fullName: 'John Doe',
     email: 'john.doe@mail.com'
 });
-db.save(johnDoe, function (err) {
-    if (err) return handleErr(err);
-
-    // johnDoe._id and johnDoe._rev is automatically set by save()
-});
+await db.save(johnDoe);
+// johnDoe._id and johnDoe._rev is automatically set by save()
 
 // Getting a blog post by ID
-db.get('blogPost', blogPostId, function (err, blogPost) {
-    if (err) return handleErr(err);
-
-    // The blogPost will be an instantiated entity BlogPost
-});
+let blogPost = await db.get('blogPost', blogPostId);
+// The blogPost will be an instantiated entity BlogPost
 ```
 
 ## API
@@ -213,7 +207,7 @@ instead return an error.
 
 ```javascript
 {
-    validate: function (entity, callback) {
+    validate(entity, callback) {
         if (entity.validate) {
             entity.validate(callback);
         }
@@ -236,7 +230,7 @@ other views.
 
 ```javascript
 {
-    rewriteView: function (type, viewName) {
+    rewriteView(type, viewName) {
         return [type + '-' + viewName, 'fn'];
     }
 }
@@ -283,7 +277,7 @@ For `save`, `merge`, `remove` and `update` if you get a conflict, gives the foll
 
 (The MIT License)
 
-Copyright (c) 2013-2015 Calle Arnesten
+Copyright (c) 2013-2022 Calle Arnesten
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

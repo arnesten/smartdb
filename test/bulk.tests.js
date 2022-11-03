@@ -1,9 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
+import { assert, testCase } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('auth', {
+export default testCase('auth', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -21,7 +20,7 @@ module.exports = testCase('auth', {
                         { doc: { _id: 'F2', type: 'fish' } }
                     ]
                 });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [{
                     url: 'http://myserver.com/main',
                     entities: {
@@ -49,7 +48,7 @@ module.exports = testCase('auth', {
                         {}
                     ]
                 });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [{
                     url: 'http://myserver.com/main',
                     entities: {
@@ -75,7 +74,7 @@ module.exports = testCase('auth', {
                         {}
                     ]
                 });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [{
                     url: 'http://myserver.com/main',
                     entities: {
@@ -103,7 +102,7 @@ module.exports = testCase('auth', {
                         {}
                     ]
                 });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [{
                     url: 'http://myserver.com/main',
                     entities: {
@@ -130,7 +129,7 @@ module.exports = testCase('auth', {
                         { doc: { _id: 'F2', type: 'fish' }}
                     ]
                 });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [{
                     url: 'http://myserver.com/main',
                     entities: {
@@ -167,10 +166,6 @@ function Fish(doc) {
 function Chip(doc) {
     Object.assign(this, doc);
     this.type = 'chip';
-}
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
 }
 
 async function catchError(fn) {

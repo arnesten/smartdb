@@ -1,11 +1,9 @@
-let bocha = require('bocha');
-let sinon = require('sinon');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
-let SmartDb = require('../lib/SmartDb.js');
+import { assert, testCase } from 'bocha/node.mjs';
+import sinon from 'sinon';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('cache', {
+export default testCase('cache', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -16,7 +14,7 @@ module.exports = testCase('cache', {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -38,7 +36,7 @@ module.exports = testCase('cache', {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -61,7 +59,7 @@ module.exports = testCase('cache', {
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .get('/animals/F2').reply(200, { _id: 'F2', _rev: 'F2R1', type: 'fish' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -90,7 +88,7 @@ module.exports = testCase('cache', {
             this.nock
                 .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
                 .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -113,7 +111,7 @@ module.exports = testCase('cache', {
             this.nock
                 .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
                 .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-            let db = createDb({
+            let db = SmartDb({
                 databases: [
                     {
                         url: 'http://myserver.com/animals',
@@ -138,7 +136,7 @@ module.exports = testCase('cache', {
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .put('/animals/F1', { _rev: 'F1R1', type: 'fish' }).reply(200, { id: 'F1', rev: 'F1R2' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R3', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -159,7 +157,7 @@ module.exports = testCase('cache', {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .put('/animals/F1', { _rev: 'F1R1', type: 'fish', name: 'Sharky' }).reply(200, { id: 'F1', rev: 'F1R2' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -181,7 +179,7 @@ module.exports = testCase('cache', {
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/animals/F1?rev=F1R1').reply(200)
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -202,7 +200,7 @@ module.exports = testCase('cache', {
         this.nock
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .get('/animals/F1').reply(200, { _id: 'F1', _rev: 'F1R2', type: 'fish' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -232,7 +230,7 @@ module.exports = testCase('cache', {
             .post('/main/_all_docs', { keys: ['F1', 'F2'] })
             .query({ include_docs: 'true' })
             .reply(500);
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/main',
                 entities: {
@@ -249,7 +247,3 @@ module.exports = testCase('cache', {
         assert.equals(fishes[1], { _id: 'F2', type: 'fish' });
     }
 });
-
-function createDb(options) {
-    return SmartDb(options);
-}

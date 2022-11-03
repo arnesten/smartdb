@@ -1,10 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let refute = bocha.refute;
-let nock = require('nock');
+import { assert, testCase } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('views', {
+export default testCase('views', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -14,7 +12,7 @@ module.exports = testCase('views', {
     'list: without rewrite': async function () {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?group=true').reply(200, '<b>Shark</b>');
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -32,7 +30,7 @@ module.exports = testCase('views', {
     'list: with keys array': async function () {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView?keys=%5B%221%22%2C2%5D').reply(200, '<b>Shark</b>');
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -48,7 +46,3 @@ module.exports = testCase('views', {
         assert.equals(result, '<b>Shark</b>');
     }
 });
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}
