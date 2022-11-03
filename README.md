@@ -57,61 +57,58 @@ let blogPost = await db.get('blogPost', blogPostId);
 
 ## API
 
-#### db.get(type, id, callback)
+#### db.get(type, id)
 
-Get entity by type and ID. Callback signature is `(err, entity)`. If no document found, will return an error.
+Get entity by type and ID. Returns promise to entity. If no document found, will return an error.
 
-#### db.getOrNull(type, id, callback)
+#### db.getOrNull(type, id)
 
 Same as db.get() but return null instead of error when no document found.
 Will also return null if `id` is null/undefined, which can be useful in some situations to keep code compact.
 
-#### db.save(entity, callback)
+#### db.save(entity)
 
-Saves an unsaved entity. Callback signature is `(err)`. The properties _id and _rev will automatically be set on the
+Saves an unsaved entity. Returns promise. The properties _id and _rev will automatically be set on the
 given entity after save complete.
 
-#### db.update(entity, callback)
+#### db.update(entity)
 
-Updates an existing entity. Callback signature is `(err)`. Must have _id and _rev defined. Will automatically set _rev on
+Updates an existing entity. Returns promise. Must have _id and _rev defined. Will automatically set _rev on
 the given entity after update complete.
 
-#### db.merge(type, id, changedProperties, callback)
+#### db.merge(type, id, changedProperties)
 
 Change specific properties on an entity.
 
 ```javascript
-db.merge('user', userId, { email: 'a.new@email.com' }, function (err, info) {
-    // info = { rev: '<REV>' }
-});
+let { rev } = await db.merge('user', userId, { email: 'a.new@email.com' });
 ```
 
-#### db.remove(type, id, callback)
+#### db.remove(type, id)
 
-Removes an entity by type and ID.
+Removes an entity by type and ID. Returns promise
 
-#### db.view(type, viewName, args, callback)
+#### db.view(type, viewName, args)
 
 Calls a view and returns entities based on the documents in the response.
-Callback signature is `(err, entities)`.
+Returns promise of entities.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 You do not need to pass `include_docs: true` to the args, it is automatically set.
 
 ```javascript
-db.view('user', 'byDepartment', { key: '<DEPT_ID>' }, function (err, users) {
-    // If you are using entity mappings, the returned users are real entities
-});
+let users = await db.view('user', 'byDepartment', { key: '<DEPT_ID>' });
+// If you are using entity mappings, the returned users are real entities
 ```
 
-#### db.viewRaw(type, viewName, viewArgs, callback)
+#### db.viewRaw(type, viewName, viewArgs)
 
-Calls a view and returns the raw JSON rows from CouchDB. Callback signature is `(err, rows)`.
+Calls a view and returns a promise with the raw JSON rows from CouchDB.
 Useful when you want to use the key and value properties.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 
-#### db.list(type, listName, viewName, args, callback)
+#### db.list(type, listName, viewName, args)
 
-Calls a list function and returns the raw result from CouchDB. Callback signature is `(err, body)`.
+Calls a list function and returns the raw result from CouchDB. Returns promise of body.
 
 ## Options
 
@@ -157,13 +154,13 @@ The default is to just returns the JSON document retrieved from the database.
 
 ```javascript
 {
-    mapDocToEntity: function (doc) {
-        var map = {
+    mapDocToEntity(doc) {
+        let map = {
             user: User,
             blogPost: BlogPost,
             blogComment: BlogComment
         };
-        var Constructor = map[doc.type];
+        let Constructor = map[doc.type];
         return new Constructor(doc);
     }
 }
@@ -176,7 +173,7 @@ In some cases you might want to strip it of some properties or change something 
 One way might be to have a convention to have a `toDoc()` method on entities.
 ```javascript
 {
-    mapEntityToDoc: function (entity) {
+    mapEntityToDoc(entity) {
         if (entity.toDoc) {
             return entity.toDoc();
         }
@@ -194,8 +191,12 @@ If you have multiple Node.js processes the recommendation is to use the
 [Redis cache provider](https://github.com/arnesten/smartdb-rediscacheprovider) that is available for *smartdb*.
 
 ```javascript
+import RedisCacheProvider from 'smartdb-rediscacheprovider'
+
+//...
+
 {
-    cacheProvider: require('smartdb-rediscacheprovider')({ /* cache provider options */  })
+    cacheProvider: RedisCacheProvider({ /* cache provider options */  })
 }
 ```
 
