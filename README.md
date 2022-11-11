@@ -184,7 +184,7 @@ One way might be to have a convention to have a `toDoc()` method on entities.
 
 #### cacheProvider
 
-By default *smartdb* uses an in-memory cache inside the same Node.js process. 
+By default, *smartdb* uses an in-memory cache inside the same Node.js process. 
 This works well when you only have a single Node.js process that use your CouchDB database. 
 
 If you have multiple Node.js processes the recommendation is to use the 
