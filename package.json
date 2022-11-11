@@ -17,7 +17,7 @@
   "dependencies": {
     "nano": "^8.2.3",
     "request": "^2.88.0",
-    "smartdb-stdcacheproviders": "^7.0.3"
+    "smartdb-stdcacheproviders": "^9.0.0"
   },
   "devDependencies": {
     "bocha": "^2.1.0",
