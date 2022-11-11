@@ -12,15 +12,16 @@
     "object document mapper"
   ],
   "author": "Calle Arnesten <calle.arnesten@codekick.com>",
+  "type": "module",
   "main": "lib/SmartDb.js",
   "dependencies": {
-    "nano": "^8.0.1",
+    "nano": "^8.2.3",
     "request": "^2.88.0",
-    "smartdb-stdcacheproviders": "^6.3.0"
+    "smartdb-stdcacheproviders": "^7.0.3"
   },
   "devDependencies": {
-    "bocha": "^1.8.2",
-    "nock": "^10.0.6"
+    "bocha": "^2.1.0",
+    "nock": "^13.2.9"
   },
   "scripts": {
     "test": "node test/runAll.js"

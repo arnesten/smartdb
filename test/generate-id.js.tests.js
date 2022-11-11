@@ -1,10 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
-let SmartDb = require('../lib/SmartDb.js');
+import { assert, testCase } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('generate-id', {
+export default testCase('generate-id', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -16,7 +14,7 @@ module.exports = testCase('generate-id', {
             id: 'S1A',
             rev: 'S1B'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -47,7 +45,7 @@ module.exports = testCase('generate-id', {
             .put('/main/S1A', { name: 'Shark', type: 'fish' }).reply(409, {})
             .put('/main/S2A', { name: 'Shark', type: 'fish' }).reply(200, { id: 'S2A', rev: 'S2B' });
         let callCount = 0;
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -80,7 +78,7 @@ module.exports = testCase('generate-id', {
             .put('/main/S2A', { name: 'Shark', type: 'fish' }).reply(409, {})
             .put('/main/S3A', { name: 'Shark', type: 'fish' }).reply(200, { id: 'S3A', rev: 'S3B' });
         let callCount = 0;
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -108,7 +106,3 @@ module.exports = testCase('generate-id', {
         });
     }
 });
-
-function createDb(options) {
-    return SmartDb(options);
-}

@@ -1,9 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
+import { assert, testCase, catchErrorAsync } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('views', {
+export default testCase('views', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -17,7 +16,7 @@ module.exports = testCase('views', {
                 { doc: { _id: 'F1', name: 'Great white' } }
             ]
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -26,10 +25,8 @@ module.exports = testCase('views', {
                     }
                 }
             ],
-            getEntityCreator: function () {
-                return function (doc) {
-                    return new Fish(doc);
-                }
+            getEntityCreator() {
+                return doc => new Fish(doc);
             }
         });
 
@@ -51,7 +48,7 @@ module.exports = testCase('views', {
                 { doc: { _id: 'F2', name: 'Small blue' } },
             ]
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -60,10 +57,8 @@ module.exports = testCase('views', {
                     }
                 }
             ],
-            getEntityCreator: function () {
-                return function (doc) {
-                    return new Fish(doc);
-                }
+            getEntityCreator() {
+                return doc => new Fish(doc);
             }
         });
 
@@ -88,7 +83,7 @@ module.exports = testCase('views', {
                 { doc: { _id: 'F1', name: 'Great white' } }
             ]
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -97,13 +92,11 @@ module.exports = testCase('views', {
                     }
                 }
             ],
-            getEntityCreator: function () {
-                return function (doc) {
-                    return new Fish(doc);
-                }
+            getEntityCreator() {
+                return doc => new Fish(doc)
             },
-            rewriteView: function (type, viewName) {
-                return [type + '-' + viewName, 'fn'];
+            rewriteView(type, viewName) {
+                return [`${type}-${viewName}`, 'fn'];
             }
         });
 
@@ -121,7 +114,7 @@ module.exports = testCase('views', {
             .get('/animals/_design/fish/_view/getSharks?include_docs=true').reply(404, {
             error: 'not_found'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -132,12 +125,12 @@ module.exports = testCase('views', {
             ]
         });
 
-        let err = await catchError(() => db.view('fish', 'getSharks', {}));
+        let err = await catchErrorAsync(() => db.view('fish', 'getSharks', {}));
 
         assert.equals(err, new Error('View not found: _design/fish/_view/getSharks'));
     },
     'view: with key set to "undefined" should throw error': async function () {
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -146,7 +139,7 @@ module.exports = testCase('views', {
             }]
         });
 
-        let err = await catchError(() => db.view('fish', 'getSharks', { key: undefined }));
+        let err = await catchErrorAsync(() => db.view('fish', 'getSharks', { key: undefined }));
 
         assert.equals(err.message, '"key" should not be set to undefined since that will fetch any documents');
     },
@@ -158,7 +151,7 @@ module.exports = testCase('views', {
                 { value: 2 }
             ]
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -181,7 +174,7 @@ module.exports = testCase('views', {
                 { value: 2, key: 'Bass' }
             ]
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -203,17 +196,4 @@ module.exports = testCase('views', {
 
 function Fish(doc) {
     Object.assign(this, doc);
-}
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}
-
-async function catchError(fn) {
-    try {
-        await fn();
-    }
-    catch (err) {
-        return err;
-    }
 }

@@ -1,10 +1,9 @@
-let bocha = require('bocha');
-let sinon = require('sinon');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
+import SmartDb from '../lib/SmartDb.js';
+import { assert, testCase, catchErrorAsync } from 'bocha/node.mjs';
+import sinon from 'sinon';
+import nock from 'nock';
 
-module.exports = testCase('simple-crud', {
+export default testCase('simple-crud', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -19,7 +18,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -46,7 +45,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -59,13 +58,13 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        let err = await catchError(() => db.get('chip', 'X'));
+        let err = await catchErrorAsync(() => db.get('chip', 'X'));
 
         assert.equals(err.message, 'Entity is missing');
     },
 
     'get: if type not defined, throw exception': async function () {
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -76,13 +75,13 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let err = await catchError(() => db.get('chip', 'C1'));
+        let err = await catchErrorAsync(() => db.get('chip', 'C1'));
 
         assert.equals(err.message, 'Type not defined "chip"');
     },
 
     'get: if ID empty string, throw exception': async function () {
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -93,7 +92,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let err = await catchError(() => db.get('chip', ''));
+        let err = await catchErrorAsync(() => db.get('chip', ''));
 
         assert.equals(err.message, 'id required');
     },
@@ -105,7 +104,7 @@ module.exports = testCase('simple-crud', {
             'reason': 'missing'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -117,7 +116,7 @@ module.exports = testCase('simple-crud', {
             mapDocToEntity
         });
 
-        let err = await catchError(() => db.get('fish', 'F1'));
+        let err = await catchErrorAsync(() => db.get('fish', 'F1'));
 
         assert(err);
     },
@@ -130,7 +129,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -157,7 +156,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -182,7 +181,7 @@ module.exports = testCase('simple-crud', {
             'reason': 'missing'
         });
         let mapDocToEntity = sinon.spy(fishChipMapDocToEntity);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -206,7 +205,7 @@ module.exports = testCase('simple-crud', {
             _rev: '1-2',
             type: 'chip'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -235,7 +234,7 @@ module.exports = testCase('simple-crud', {
             id: 'C1',
             rev: 'C1R'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -263,7 +262,7 @@ module.exports = testCase('simple-crud', {
             id: 'C1',
             rev: 'C1R'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -291,7 +290,7 @@ module.exports = testCase('simple-crud', {
             id: 'F1',
             rev: 'F1R'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -314,7 +313,7 @@ module.exports = testCase('simple-crud', {
     'trying to save task with id that conflicts should give EntityConflictError': async function () {
         this.nock
             .put('/main/F1', { name: 'Shark', type: 'fish' }).reply(409);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -326,7 +325,7 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', name: 'Shark' });
 
-        let err = await catchError(() => db.save(shark));
+        let err = await catchErrorAsync(() => db.save(shark));
 
         assert.equals(err.name, 'EntityConflictError');
         assert.equals(err.message, 'Conflict when trying to persist entity change');
@@ -344,7 +343,7 @@ module.exports = testCase('simple-crud', {
             id: 'F1',
             rev: 'F1R2'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -367,7 +366,7 @@ module.exports = testCase('simple-crud', {
             id: 'F1',
             rev: 'F1R2'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -387,7 +386,7 @@ module.exports = testCase('simple-crud', {
     'trying to update entity that conflicts should give EntityConflictError': async function () {
         this.nock
             .put('/main/F1', { _rev: 'F1R1', name: 'Shark', type: 'fish' }).reply(409);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -399,7 +398,7 @@ module.exports = testCase('simple-crud', {
         });
         let shark = new Fish({ _id: 'F1', _rev: 'F1R1', name: 'Shark' });
 
-        let err = await catchError(() => db.update(shark));
+        let err = await catchErrorAsync(() => db.update(shark));
 
         assert.equals(err.name, 'EntityConflictError');
         assert.equals(err.entityId, 'F1');
@@ -420,7 +419,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish',
             name: 'Mr White'
         }).reply(200, { id: 'F1', rev: '2' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -450,7 +449,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish',
             name: 'Mr White'
         }).reply(200, { id: 'F1', rev: '2' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -495,7 +494,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish',
             name: 'Mr White'
         }).reply(200, { id: 'F1', rev: '3' });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -520,7 +519,7 @@ module.exports = testCase('simple-crud', {
             _rev: '1',
             type: 'fish'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -550,7 +549,7 @@ module.exports = testCase('simple-crud', {
             .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish', motto: 'I am bad' }).reply(200, {
             rev: 'F1R2'
         });
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -576,7 +575,7 @@ module.exports = testCase('simple-crud', {
             type: 'fish'
         })
             .put('/main/F1', { _rev: 'F1R1', name: 'White shark', type: 'fish' }).reply(409);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -587,7 +586,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let err = await catchError(() => db.merge('fish', 'F1', { name: 'White shark' }));
+        let err = await catchErrorAsync(() => db.merge('fish', 'F1', { name: 'White shark' }));
 
         assert.equals(err.name, 'EntityConflictError');
         assert.equals(err.entityId, 'F1');
@@ -600,7 +599,7 @@ module.exports = testCase('simple-crud', {
     'trying to merge entity that no longer exists should give EntityMissingError': async function () {
         this.nock
             .get('/main/F1').reply(404);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -611,7 +610,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let err = await catchError(() => db.merge('fish', 'F1', { name: 'White shark' }));
+        let err = await catchErrorAsync(() => db.merge('fish', 'F1', { name: 'White shark' }));
 
         assert.equals(err.name, 'EntityMissingError');
         assert.equals(err.entityId, 'F1');
@@ -625,7 +624,7 @@ module.exports = testCase('simple-crud', {
         this.nock
             .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(200, {});
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -645,7 +644,7 @@ module.exports = testCase('simple-crud', {
         this.nock
             .get('/main/F1').reply(200, { _id: 'F1', _rev: 'F1R1', type: 'fish' })
             .delete('/main/F1?rev=F1R1').reply(409);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/main',
@@ -656,7 +655,7 @@ module.exports = testCase('simple-crud', {
             ]
         });
 
-        let err = await catchError(() => db.remove('fish', 'F1'));
+        let err = await catchErrorAsync(() => db.remove('fish', 'F1'));
 
         assert.equals(err.name, 'EntityConflictError');
         assert.equals(err.entityId, 'F1');
@@ -683,17 +682,4 @@ function Fish(doc) {
 function Chip(doc) {
     Object.assign(this, doc);
     this.type = 'chip';
-}
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}
-
-async function catchError(fn) {
-    try {
-        await fn();
-    }
-    catch (err) {
-        return err;
-    }
 }

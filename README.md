@@ -13,9 +13,9 @@ Features:
 ## Example
 
 ```javascript
-var SmartDb = require('smartdb');
+import SmartDb from 'smartdb';
 
-var db = SmartDb({
+let db = SmartDb({
     databases: [
         {
             url: 'http://localhost:5984/userdb',
@@ -32,8 +32,8 @@ var db = SmartDb({
         }
     ],
     // This is optional. It enables you to map from document to entity
-    mapDocToEntity: function (doc) {
-        var type = doc.type;
+    mapDocToEntity(doc) {
+        let type = doc.type;
         if (type === 'user') return new User(doc);
         if (type === 'blogPost') return new BlogPost(doc);
         if (type === 'blogComment') return new BlogComment(doc);
@@ -43,81 +43,72 @@ var db = SmartDb({
 });
 
 // Saving a user
-var johnDoe = new User({
+let johnDoe = new User({
     fullName: 'John Doe',
     email: 'john.doe@mail.com'
 });
-db.save(johnDoe, function (err) {
-    if (err) return handleErr(err);
-
-    // johnDoe._id and johnDoe._rev is automatically set by save()
-});
+await db.save(johnDoe);
+// johnDoe._id and johnDoe._rev is automatically set by save()
 
 // Getting a blog post by ID
-db.get('blogPost', blogPostId, function (err, blogPost) {
-    if (err) return handleErr(err);
-
-    // The blogPost will be an instantiated entity BlogPost
-});
+let blogPost = await db.get('blogPost', blogPostId);
+// The blogPost will be an instantiated entity BlogPost
 ```
 
 ## API
 
-#### db.get(type, id, callback)
+#### db.get(type, id)
 
-Get entity by type and ID. Callback signature is `(err, entity)`. If no document found, will return an error.
+Get entity by type and ID. Returns promise to entity. If no document found, will return an error.
 
-#### db.getOrNull(type, id, callback)
+#### db.getOrNull(type, id)
 
 Same as db.get() but return null instead of error when no document found.
 Will also return null if `id` is null/undefined, which can be useful in some situations to keep code compact.
 
-#### db.save(entity, callback)
+#### db.save(entity)
 
-Saves an unsaved entity. Callback signature is `(err)`. The properties _id and _rev will automatically be set on the
+Saves an unsaved entity. Returns promise. The properties _id and _rev will automatically be set on the
 given entity after save complete.
 
-#### db.update(entity, callback)
+#### db.update(entity)
 
-Updates an existing entity. Callback signature is `(err)`. Must have _id and _rev defined. Will automatically set _rev on
+Updates an existing entity. Returns promise. Must have _id and _rev defined. Will automatically set _rev on
 the given entity after update complete.
 
-#### db.merge(type, id, changedProperties, callback)
+#### db.merge(type, id, changedProperties)
 
 Change specific properties on an entity.
 
 ```javascript
-db.merge('user', userId, { email: 'a.new@email.com' }, function (err, info) {
-    // info = { rev: '<REV>' }
-});
+let { rev } = await db.merge('user', userId, { email: 'a.new@email.com' });
 ```
 
-#### db.remove(type, id, callback)
+#### db.remove(type, id)
 
-Removes an entity by type and ID.
+Removes an entity by type and ID. Returns promise
 
-#### db.view(type, viewName, args, callback)
+#### db.view(type, viewName, args)
 
 Calls a view and returns entities based on the documents in the response.
-Callback signature is `(err, entities)`.
+Returns promise of entities.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 You do not need to pass `include_docs: true` to the args, it is automatically set.
 
 ```javascript
-db.view('user', 'byDepartment', { key: '<DEPT_ID>' }, function (err, users) {
-    // If you are using entity mappings, the returned users are real entities
-});
+let users = await db.view('user', 'byDepartment', { key: '<DEPT_ID>' });
+// If you are using entity mappings, the returned users are real entities
 ```
 
-#### db.viewRaw(type, viewName, viewArgs, callback)
+#### db.viewRaw(type, viewName, viewArgs)
 
-Calls a view and returns the raw JSON rows from CouchDB. Callback signature is `(err, rows)`.
+Calls a view and returns a promise with the raw JSON rows from CouchDB.
 Useful when you want to use the key and value properties.
 Will by default use a design document with the same name as `type`. However, this is configurable by using the `rewriteView` option.
 
-#### db.list(type, listName, viewName, args, callback)
+#### db.list(type, listName, viewName, args)
 
-Calls a list function and returns the raw result from CouchDB. Callback signature is `(err, body)`.
+Calls a list function and returns the raw result from CouchDB. Returns promise of body.
 
 ## Options
 
@@ -163,13 +154,13 @@ The default is to just returns the JSON document retrieved from the database.
 
 ```javascript
 {
-    mapDocToEntity: function (doc) {
-        var map = {
+    mapDocToEntity(doc) {
+        let map = {
             user: User,
             blogPost: BlogPost,
             blogComment: BlogComment
         };
-        var Constructor = map[doc.type];
+        let Constructor = map[doc.type];
         return new Constructor(doc);
     }
 }
@@ -182,7 +173,7 @@ In some cases you might want to strip it of some properties or change something 
 One way might be to have a convention to have a `toDoc()` method on entities.
 ```javascript
 {
-    mapEntityToDoc: function (entity) {
+    mapEntityToDoc(entity) {
         if (entity.toDoc) {
             return entity.toDoc();
         }
@@ -193,15 +184,19 @@ One way might be to have a convention to have a `toDoc()` method on entities.
 
 #### cacheProvider
 
-By default *smartdb* uses an in-memory cache inside the same Node.js process. 
+By default, *smartdb* uses an in-memory cache inside the same Node.js process. 
 This works well when you only have a single Node.js process that use your CouchDB database. 
 
 If you have multiple Node.js processes the recommendation is to use the 
 [Redis cache provider](https://github.com/arnesten/smartdb-rediscacheprovider) that is available for *smartdb*.
 
 ```javascript
+import RedisCacheProvider from 'smartdb-rediscacheprovider'
+
+//...
+
 {
-    cacheProvider: require('smartdb-rediscacheprovider')({ /* cache provider options */  })
+    cacheProvider: RedisCacheProvider({ /* cache provider options */  })
 }
 ```
 
@@ -213,7 +208,7 @@ instead return an error.
 
 ```javascript
 {
-    validate: function (entity, callback) {
+    validate(entity, callback) {
         if (entity.validate) {
             entity.validate(callback);
         }
@@ -236,7 +231,7 @@ other views.
 
 ```javascript
 {
-    rewriteView: function (type, viewName) {
+    rewriteView(type, viewName) {
         return [type + '-' + viewName, 'fn'];
     }
 }
@@ -283,7 +278,7 @@ For `save`, `merge`, `remove` and `update` if you get a conflict, gives the foll
 
 (The MIT License)
 
-Copyright (c) 2013-2015 Calle Arnesten
+Copyright (c) 2013-2022 Calle Arnesten
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

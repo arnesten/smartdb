@@ -1,11 +1,9 @@
-let bocha = require('bocha');
-let sinon = require('sinon');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let refute = bocha.refute;
-let nock = require('nock');
+import { assert, testCase } from 'bocha/node.mjs';
+import sinon from 'sinon';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('cache-provider', {
+export default testCase('cache-provider', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -13,7 +11,7 @@ module.exports = testCase('cache-provider', {
         nock.cleanAll();
     },
     'can use provider to get cached item': async function () {
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -48,7 +46,7 @@ module.exports = testCase('cache-provider', {
             rev: 'F1R2'
         });
         let cacheDel = sinon.spy(() => Promise.resolve());
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://myserver.com/animals',
@@ -76,6 +74,3 @@ module.exports = testCase('cache-provider', {
     }
 });
 
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}

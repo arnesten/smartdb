@@ -1,8 +1,8 @@
-let { testCase, assert } = require('bocha');
-let nock = require('nock');
-let SmartDb = require('../lib/SmartDb.js');
+import { assert, testCase } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('find', {
+export default testCase('find', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -22,7 +22,7 @@ module.exports = testCase('find', {
                     { _id: 'F1', name: 'Great white' }
                 ]
             });
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -55,7 +55,7 @@ module.exports = testCase('find', {
                     { _id: 'F1', name: 'Great white' }
                 ]
             });
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -86,7 +86,7 @@ module.exports = testCase('find', {
                     { _id: 'F1', name: 'Great white' }
                 ]
             });
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -118,7 +118,7 @@ module.exports = testCase('find', {
                     { _id: 'F1', name: 'Great white' }
                 ]
             });
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -139,7 +139,7 @@ module.exports = testCase('find', {
         assert.equals(result, [{ _id: 'F1', name: 'Great white' }]);
     },
     'can use a hook to validate': async function () {
-        let db = createDb({
+        let db = SmartDb({
             databases: [{
                 url: 'http://myserver.com/animals',
                 entities: {
@@ -173,7 +173,7 @@ module.exports = testCase('find', {
                     { _id: 'F1', name: 'Great white' }
                 ]
             });
-        let db = createDb({
+        let db = SmartDb({
             defaultFindLimit: 10000,
             databases: [{
                 url: 'http://myserver.com/animals',
@@ -190,10 +190,6 @@ module.exports = testCase('find', {
         assert.equals(result, [{ _id: 'F1', name: 'Great white' }]);
     }
 });
-
-function createDb(options) {
-    return SmartDb(options);
-}
 
 function Fish(doc) {
     Object.assign(this, doc);

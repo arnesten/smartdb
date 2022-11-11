@@ -1,9 +1,8 @@
-let bocha = require('bocha');
-let testCase = bocha.testCase;
-let assert = bocha.assert;
-let nock = require('nock');
+import { assert, testCase } from 'bocha/node.mjs';
+import nock from 'nock';
+import SmartDb from '../lib/SmartDb.js';
 
-module.exports = testCase('auth', {
+export default testCase('auth', {
     setUp() {
         this.nock = nock('http://myserver.com');
     },
@@ -13,7 +12,7 @@ module.exports = testCase('auth', {
     'get: when giving auth and error appears, should NOT show authentication info': async function () {
         this.nock
             .get('/animals/F1').reply(500);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',
@@ -32,7 +31,7 @@ module.exports = testCase('auth', {
     'list: when giving auth and error appears, should NOT show authentication info': async function () {
         this.nock
             .get('/animals/_design/fish/_list/myList/myView').reply(500);
-        let db = createDb({
+        let db = SmartDb({
             databases: [
                 {
                     url: 'http://admin:12345@myserver.com/animals',
@@ -49,10 +48,6 @@ module.exports = testCase('auth', {
         assert(JSON.stringify(err).indexOf('admin:12345') < 0);
     }
 });
-
-function createDb(options) {
-    return require('../lib/SmartDb.js')(options);
-}
 
 async function catchError(fn) {
     try {
