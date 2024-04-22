@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/arnesten/smartdb"
+    "url": "git+https://github.com/arnesten/smartdb.git"
   },
   "bugs": {
     "url": "https://github.com/arnesten/smartdb/issues"
