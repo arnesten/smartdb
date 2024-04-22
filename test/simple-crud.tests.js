@@ -1,5 +1,5 @@
 import SmartDb from '../lib/SmartDb.js';
-import { assert, testCase, catchErrorAsync, sinon } from 'bocha/node.mjs';
+import { assert, testCase, catchErrorAsync, sinon } from 'bocha';
 import nock from 'nock';
 
 export default testCase('simple-crud', {
@@ -324,7 +324,7 @@ export default testCase('simple-crud', {
             assert.equals(err.scope, 'smartdb');
             assert.equals(err.entityId, 'F1');
             assert.equals(err.entityType, 'fish');
-            assert.match(err.request, { method: 'PUT', uri: 'http://myserver.com/main/F1' });
+            assert.match(err.request, { method: 'put', url: 'http://myserver.com/main/F1' });
             assert.match(err.response, { statusCode: 409, headers: { uri: 'http://myserver.com/main/F1' } });
             assert(this.nock.isDone());
         },

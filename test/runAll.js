@@ -1,4 +1,4 @@
-import { runOnce } from 'bocha/node.mjs';
+import { runOnce } from 'bocha';
 import { URL } from 'url';
 
 let __dirname = new URL('.', import.meta.url).pathname;

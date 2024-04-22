@@ -1,4 +1,4 @@
-import { assert, refute, testCase, catchErrorAsync } from 'bocha/node.mjs';
+import { assert, refute, testCase, catchErrorAsync } from 'bocha';
 import nock from 'nock';
 import SmartDb from '../lib/SmartDb.js';
 

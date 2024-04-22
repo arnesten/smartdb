@@ -1,5 +1,5 @@
 import path from 'path';
-import { watch } from 'bocha/node.mjs';
+import { watch } from 'bocha';
 import { URL } from 'url';
 
 let __dirname = new URL('.', import.meta.url).pathname;
